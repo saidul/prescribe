@@ -45,7 +45,7 @@
 
 <div class="wrapper">
   <header>
-      <button class="btn btn-primary" id="print">Print</button>
+      <button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button>
   Name: <input type="text" /> Age: <input type="text" /> Sex: <input type="text" /> Date: <input type="text">
   </header>
 
@@ -59,7 +59,8 @@
               <li><span class="complain">Kosto lage</span> <span class="comment">7 days</span></li>
               <li><span class="complain">Muri lal</span> <span class="comment">7 days</span></li>
           </ul>
-          <div>
+
+          <div id="onsite-experiment-block">
               O/E:
               <ul id="onsite-experiment"></ul>
 
@@ -69,24 +70,16 @@
                       <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu">
-                      <li><a href="#">P: </a></li>
-                      <li><a href="#">BP: </a></li>
-                      <li><a href="#">T: </a></li>
-                      <li><a href="#">H-L: </a></li>
-                      <li><a href="#">R/R: </a></li>
                       <li class="divider"></li>
                       <li id="btn-new-oe" class="new-oe"><a href="#">Add new...</a></li>
                   </ul>
               </div>
           </div>
-          Adv:
-          <ul>
-              <li>CBC</li>
-              <li>RBS</li>
-              <li>LFT</li>
-              <li class="new-entry"><input type="text"></li>
-
-          </ul>
+          <div id="advised-tests-block">
+              Adv:
+              <ul id="advised-tests"></ul>
+              <input id="advised-tests-input" class="typeahead no-print" placeholder="Tests..." type="text">
+          </div>
       </div>
       <div class="right-bar">
           <ul>
@@ -98,8 +91,12 @@
 
               </li>
           </ul>
-          উপদেশঃ
 
+          <div id="advice-block">
+              উপদেশঃ
+              <ul id="advice"></ul>
+
+          </div>
       </div>
   </div>
   
@@ -110,16 +107,19 @@
 
 
 
-<div class="modal hide fade" id="modal-oe">
+<div class="modal hide fade existing" id="modal-oe">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">×</button>
         <h3>Add New O/E</h3>
     </div>
     <div class="modal-body">
         <p>
-            <input type="text" name="oe-name" placeholder="O/E Name">
-            <input type="text" name="oe-value" placeholder="Value">
-            <input type="text" name="oe-unit" placeholder="Unit">
+            <form id="oe-form">
+                <input id="oe-short-name" type="text" name="oe-short-name" placeholder="O/E Short Name">
+                <input id="oe-name" type="text" name="oe-name" placeholder="O/E Name">
+                <input id="oe-value" type="text" name="oe-value" placeholder="Value">
+                <input id="oe-unit" type="text" name="oe-unit" placeholder="Unit">
+            </form>
         </p>
     </div>
     <div class="modal-footer">
@@ -127,5 +127,41 @@
         <a href="#" class="btn btn-primary">Save</a>
     </div>
 </div>
+
+<div class="modal hide fade" id="confirm-dialog">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Add New O/E</h3>
+    </div>
+    <div class="modal-body">
+        <p>
+
+        </p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">No</a>
+        <a href="#" class="btn btn-primary ok" data-dismiss="modal">Yes</a>
+    </div>
+</div>
+
+<div class="modal hide fade" id="wait-dialog">
+    <div class="modal-header">
+        <h3>Please wait...</h3>
+    </div>
+    <div class="modal-body">
+        <div class="progress progress-striped active">
+            <div class="bar" style="width: 100%;"></div>
+        </div>
+        <p>
+            Chrome is preventing print feature. Please wait....
+        </p>
+
+    </div>
+    <div class="modal-footer">
+        <!--<a href="#" class="btn" data-dismiss="modal">No</a>
+        <a href="#" class="btn btn-primary ok" data-dismiss="modal">Yes</a>-->
+    </div>
+</div>
+
 </body>
 </html>

@@ -8,6 +8,8 @@
   box-shadow: 0 0 10px #C0C0C0;
 }
 
+.wrapper .container {width: auto;}
+
 .left-bar {
     width: 33%;
     float: left;
@@ -17,6 +19,11 @@
 .left-right {
     width: 66%;
     float: left;
+}
+
+/* O/E: modal */
+.modal.existing #oe-name, .modal.existing #oe-unit, .modal.existing #oe-short-name {
+    display: none;
 }
 
 /*========================================================*/
@@ -32,6 +39,7 @@
 .printing .btn {
     display: none;
 }
-.printing #btn-add-oe {
+
+.printing .no-print{
     display: none;
 }
