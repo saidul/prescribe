@@ -3,6 +3,7 @@
   padding: 5mm 5mm;
   height: 287mm;
   margin: 10mm auto;
+  background-color: white;
   border-radius: 10px;
   box-shadow: 0 0 10px #C0C0C0;
 }
@@ -16,4 +17,21 @@
 .left-right {
     width: 66%;
     float: left;
+}
+
+/*========================================================*/
+/** Printing
+*   class printing will be added to body at the time of printing. use this class to decorate report
+*/
+
+.printing .wrapper {
+    box-shadow: none;
+    border: none;
+}
+
+.printing .btn {
+    display: none;
+}
+.printing #btn-add-oe {
+    display: none;
 }
