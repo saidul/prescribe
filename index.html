@@ -24,6 +24,8 @@
     <script src="assets/jquery/jquery-1.7.1.min.js"></script>
     <script src="assets/jquery/jquery-ui-1.8.18.custom.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.js"></script>
+    <script src="assets/js/dao.js"></script>
+    <script src="assets/js/main.js"></script>
     
 </head>
 <body>
@@ -58,12 +60,9 @@
           </ul>
           <div>
               O/E:
-              <ul id="onsite-experiment">
-                  <li>
-                  </li>
-              </ul>
+              <ul id="onsite-experiment"></ul>
 
-              <div class="btn-group">
+              <div id="btn-add-oe" class="btn-group">
                   <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                       Add O/E
                       <span class="caret"></span>
@@ -75,7 +74,7 @@
                       <li><a href="#">H-L: </a></li>
                       <li><a href="#">R/R: </a></li>
                       <li class="divider"></li>
-                      <li class="new-oe"><a href="#">Add new</a><input type="text"></li>
+                      <li id="btn-new-oe" class="new-oe"><a href="#">Add new...</a></li>
                   </ul>
               </div>
           </div>
@@ -107,5 +106,25 @@
   hello footer
   </footer>
   </div>
+
+
+
+<div class="modal hide fade" id="modal-oe">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Add New O/E</h3>
+    </div>
+    <div class="modal-body">
+        <p>
+            <input type="text" name="oe-name" placeholder="O/E Name">
+            <input type="text" name="oe-value" placeholder="Value">
+            <input type="text" name="oe-unit" placeholder="Unit">
+        </p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">Close</a>
+        <a href="#" class="btn btn-primary">Save</a>
+    </div>
+</div>
 </body>
 </html>
