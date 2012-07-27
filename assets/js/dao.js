@@ -1,4 +1,8 @@
 DAO = {
+    endPoints: {
+        sync: 'index.php/sync'
+    },
+
     data: {
         cc: [],
         oe: [],
@@ -21,6 +25,16 @@ DAO = {
 
     loadData: function(){
 
+    },
+
+    syncData: function(){
+           var req = {
+               data: DAO.data
+           }
+
+        $.post(DAO.endPoints.sync, {request: JSON.stringify(req)}, function(){
+            alert("Done");
+        })
     },
 
     loadDummyData: function() {

@@ -53,7 +53,6 @@ header #sex {
 
 #advice-selection-list li {
     list-style: none;
-    padding: 3px 0;
 }
 
 #advice-selection-list li input[type="checkbox"] {
@@ -61,12 +60,15 @@ header #sex {
     vertical-align: text-top;
 }
 
+#advice-selection-dialog label input { display: inline;}
 /* O/E: modal */
 .modal.existing #oe-name,
 .modal.existing #oe-unit,
 .modal.existing #oe-short-name {
     display: none;
 }
+
+
 
 /*========================================================*/
 /** Printing

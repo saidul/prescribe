@@ -68,7 +68,7 @@ var Prescription = {
              if(e.keyCode == 13 ){
                  var value = $(this).val().trim();
                  if(value)
-                    $(this).parent().before('<li data-item-id="new_'+ Date.now() +'"><input type="checkbox" checked="checked"><span>'+ value +'</span></li>');
+                    $(this).parent().before('<li data-item-id="new_'+ Date.now() +'"><label><input type="checkbox" checked="checked"><span>'+ value +'</span></label></li>');
                  $(this).val('');
 
              }
@@ -79,7 +79,7 @@ var Prescription = {
             $('#advice').empty();
             $('#advice-selection-dialog').find(':checked').parent().each(function(){
                 Prescription.addAdvice({
-                    id: $(this).data('itemId'),
+                    id: $(this).parent().data('itemId'),
                     text: $(this).find('span').html()
                 });
             });
@@ -220,7 +220,7 @@ var Prescription = {
 
         var $el = $('#advice-selection-list');
         $(DAO.data.advice).each(function(idx, item){
-             $el.append('<li data-item-id="'+item.id+'"><input type="checkbox"><span>'+ item.text +'</span></li>');
+             $el.append('<li data-item-id="'+item.id+'"><label><input type="checkbox"><span>'+ item.text +'</span></label></li>');
         });
         $el.append('<li>New: <input type="text" id="newAdviceTxt" class="span6"></li>');
 
