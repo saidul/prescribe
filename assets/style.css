@@ -8,7 +8,11 @@
   box-shadow: 0 0 10px #C0C0C0;
 }
 
+.wrapper .actions {
+    margin-bottom: 10px;
+}
 .wrapper .container {width: auto;}
+
 
 .left-bar {
     width: 33%;
@@ -16,7 +20,7 @@
     border-right: 1px dotted black;
 }
 
-.left-right {
+.right-bar {
     width: 66%;
     float: left;
 }
@@ -34,6 +38,10 @@
 .printing .wrapper {
     box-shadow: none;
     border: none;
+    width: 210mm;
+    padding: 0;
+    height: 297mm;
+    margin: 0 auto;
 }
 
 .printing .btn {
@@ -42,4 +50,13 @@
 
 .printing .no-print{
     display: none;
+}
+
+.printing .no-print-keep-space {
+    visibility: hidden;
+}
+
+.printing input{
+    border: none;
+    box-shadow: none;
 }

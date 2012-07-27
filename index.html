@@ -24,6 +24,7 @@
     <script src="assets/jquery/jquery-1.7.1.min.js"></script>
     <script src="assets/jquery/jquery-ui-1.8.18.custom.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.js"></script>
+    <script src="assets/js/typeahed.js"></script>
     <script src="assets/js/dao.js"></script>
     <script src="assets/js/main.js"></script>
     
@@ -45,20 +46,17 @@
 
 <div class="wrapper">
   <header>
-      <button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button>
+      <div class="actions"><button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button></div>
   Name: <input type="text" /> Age: <input type="text" /> Sex: <input type="text" /> Date: <input type="text">
   </header>
 
   <div class="container">
       <div class="left-bar">
+          <div id="chief-complains-block">
           C/C:
-          <ul>
-              <li><span class="complain">Fever</span> <span class="comment">7 days</span></li>
-              <li><span class="complain">Abdominal Pain</span> <span class="comment">7 days</span></li>
-              <li><span class="complain">Hagu mutu</span> <span class="comment">7 days</span></li>
-              <li><span class="complain">Kosto lage</span> <span class="comment">7 days</span></li>
-              <li><span class="complain">Muri lal</span> <span class="comment">7 days</span></li>
-          </ul>
+          <ul id="chief-complains"></ul>
+          <input id="chief-complains-input" class="typeahead no-print" placeholder="Complaints..." type="text">
+          </div>
 
           <div id="onsite-experiment-block">
               O/E:
@@ -75,6 +73,7 @@
                   </ul>
               </div>
           </div>
+
           <div id="advised-tests-block">
               Adv:
               <ul id="advised-tests"></ul>
@@ -112,20 +111,21 @@
         <button type="button" class="close" data-dismiss="modal">×</button>
         <h3>Add New O/E</h3>
     </div>
+    <form id="oe-form">
     <div class="modal-body">
         <p>
-            <form id="oe-form">
-                <input id="oe-short-name" type="text" name="oe-short-name" placeholder="O/E Short Name">
-                <input id="oe-name" type="text" name="oe-name" placeholder="O/E Name">
-                <input id="oe-value" type="text" name="oe-value" placeholder="Value">
-                <input id="oe-unit" type="text" name="oe-unit" placeholder="Unit">
-            </form>
+                <input id="oe-short-name" type="text" name="shortName" placeholder="O/E Short Name"  required="required">
+                <input id="oe-name" type="text" name="name" placeholder="O/E Name">
+                <input id="oe-value" type="text" name="value" placeholder="Value" required="required">
+                <input id="oe-unit" type="text" name="unit" placeholder="Unit">
+
         </p>
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">Close</a>
-        <a href="#" class="btn btn-primary">Save</a>
+        <button type="submit" class="btn btn-primary">Save</button>
     </div>
+    </form>
 </div>
 
 <div class="modal hide fade" id="confirm-dialog">

@@ -7,11 +7,38 @@ DAO = {
         treatment: []
     },
 
+    getCheifComplainByName: function(name){
+        for(var i=0;i<DAO.data.cc.length;i++) {
+            if(DAO.data.cc[i].name == name) return DAO.data.cc[i];
+        }
+    },
+
+    getOnsiteExamenationByShortName: function(shortName) {
+        for(var i=0;i<DAO.data.oe.length;i++) {
+            if(DAO.data.oe[i].shortName == shortName) return DAO.data.oe[i];
+        }
+    },
+
     loadData: function(){
 
     },
 
     loadDummyData: function() {
+       DAO.data.cc = [
+           {id: 1, name: 'Fever', comments: [
+               {id: 1, comment: '{num} days' },
+               {id: 9, comment: '{num} days {num} times' },
+               {id: 2, comment: 'night' },
+               {id: 3, comment: 'Day and night' },
+               {id: 4, comment: '{num} times' }
+           ]},
+           {id: 2, name: 'Abdominal Pain'},
+           {id: 3, name: 'Headache'},
+           {id: 4, name: 'Diarrhoea'},
+           {id: 5, name: 'Blind while sleeping'},
+           {id: 6, name: 'Vomitting'}
+       ];
+
        DAO.data.oe = [
            {id: 1, name: 'Pulse', shortName: 'P', unit: '' },
            {id: 2, name: 'Blood Pressure', shortName: 'BP', unit: '' },
