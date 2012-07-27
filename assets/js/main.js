@@ -64,6 +64,17 @@ var Prescription = {
             $('#advice-selection-dialog').modal('show');
         });
 
+         $('#advice-selection-dialog').delegate('#newAdviceTxt', 'keyup', function(e){
+             if(e.keyCode == 13 ){
+                 var value = $(this).val().trim();
+                 if(value)
+                    $(this).parent().before('<li data-item-id="new_'+ Date.now() +'"><input type="checkbox" checked="checked"><span>'+ value +'</span></li>');
+                 $(this).val('');
+
+             }
+         });
+
+
         $('#advice-selection-dialog .btn.btn-primary').click(function(){
             $('#advice').empty();
             $('#advice-selection-dialog').find(':checked').parent().each(function(){
