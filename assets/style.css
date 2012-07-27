@@ -43,8 +43,17 @@ header #sex {
 	padding: 0;
 }
 
+.right-bar ul#advice {
+    padding: 10px;
+}
+
 .right-bar ul li {
 	list-style: none;
+}
+
+.right-bar ul li span {
+    display: inline-block;
+    padding: 10px;
 }
 
 #advice-block {
