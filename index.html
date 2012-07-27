@@ -46,8 +46,55 @@
 
 <div class="wrapper">
   <header>
-      <div class="actions"><button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button></div>
-  Name: <input type="text" /> Age: <input type="text" /> Sex: <input type="text" /> Date: <input type="text">
+    <div class="actions">
+		<button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button>
+	</div>
+    <label for="patient-name" class="pull-left">
+        Name: <input id="patient-name" type="text" placeholder="Patient name">
+    </label>
+
+    <div id="age" class="btn-group pull-left">
+        <button class="btn">Age</button>
+        <button class="btn dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="#">00-05</a></li>
+            <li><a href="#">06-10</a></li>
+            <li><a href="#">11-15</a></li>
+            <li><a href="#">16-20</a></li>
+            <li><a href="#">21-25</a></li>
+            <li><a href="#">26-30</a></li>
+            <li><a href="#">31-35</a></li>
+            <li><a href="#">36-40</a></li>
+            <li><a href="#">41-45</a></li>
+            <li><a href="#">46-50</a></li>
+            <li><a href="#">51-55</a></li>
+            <li><a href="#">56-60</a></li>
+            <li><a href="#">61-65</a></li>
+            <li><a href="#">66-70</a></li>
+            <li><a href="#">71-75</a></li>
+            <li><a href="#">76-80</a></li>
+            <li><a href="#">81-85</a></li>
+            <li><a href="#">86-90</a></li>
+            <li><a href="#">91-95</a></li>
+            <li><a href="#">96-99</a></li>
+        </ul>
+    </div>
+
+    <div id="sex" class="btn-group pull-left">
+        <button class="btn">Sex</button>
+        <button class="btn dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="#">Male</a></li>
+            <li><a href="#">Female</a></li>
+        </ul>
+    </div>
+    <label for="date" class="pull-left">
+        Date: <input type="text" id="date" class="input-small" placeholder="Select one">
+    </label>
   </header>
 
   <div class="container">
@@ -83,18 +130,17 @@
       <div class="right-bar">
           <ul>
               <li>
-                  Tab. Napa 500
-                  2+2+2 ------------ jor thakle
-              </li>
-              <li>
-
-              </li>
+				<input id="medicine-input" class="typeahead no-print" placeholder="Medicine name" type="text">
+				<input id="dose-schedule-input" class="input-small typeahead no-print" placeholder="Dose schedule" type="text">
+				<input id="dose-instruction-input" class="input-medium typeahead no-print" placeholder="Dose schedule" type="text">
+			  </li>
+              <li><a class="btn" href="#">Add new line</a></li>
           </ul>
 
           <div id="advice-block">
               উপদেশঃ
               <ul id="advice"></ul>
-              <input type="button"  id="add-advice" class="btn btn-primary" value="Add Advice...">
+              <input type="button"  id="add-advice" class="btn" value="Add Advices">
           </div>
       </div>
   </div>

@@ -11,22 +11,60 @@
 .wrapper .actions {
     margin-bottom: 10px;
 }
-.wrapper .container {width: auto;}
+.wrapper .container {
+	width: auto;
+    clear: both;
+}
 
+header input {
+    display: inline-block;
+    margin-right: 25px;
+}
+
+header #sex {
+    margin-right: 25px;
+}
 
 .left-bar {
-    width: 33%;
+    width: 30%;
     float: left;
-    border-right: 1px dotted black;
+    padding-right: 1.5%;
+    border-right: 1px solid silver;
 }
 
 .right-bar {
     width: 66%;
     float: left;
+	padding-left: 2%;
+}
+
+.right-bar ul {
+	margin: 0;
+	padding: 0;
+}
+
+.right-bar ul li {
+	list-style: none;
+}
+
+#advice-block {
+    padding-top: 25px;
+}
+
+#advice-selection-list li {
+    list-style: none;
+    padding: 3px 0;
+}
+
+#advice-selection-list li input[type="checkbox"] {
+    margin: 0 5px 0 0;
+    vertical-align: text-top;
 }
 
 /* O/E: modal */
-.modal.existing #oe-name, .modal.existing #oe-unit, .modal.existing #oe-short-name {
+.modal.existing #oe-name,
+.modal.existing #oe-unit,
+.modal.existing #oe-short-name {
     display: none;
 }
 

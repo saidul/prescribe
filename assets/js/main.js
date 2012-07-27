@@ -222,7 +222,7 @@ var Prescription = {
         $(DAO.data.advice).each(function(idx, item){
              $el.append('<li data-item-id="'+item.id+'"><input type="checkbox"><span>'+ item.text +'</span></li>');
         });
-        $el.append('<li>New: <input type="text" id="newAdviceTxt"></li>');
+        $el.append('<li>New: <input type="text" id="newAdviceTxt" class="span6"></li>');
 
 
     }
