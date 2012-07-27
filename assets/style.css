@@ -13,6 +13,7 @@
 }
 .wrapper .container {
 	width: auto;
+    border-top: 1px solid black;
     clear: both;
 }
 
@@ -30,12 +31,14 @@ header #sex {
     float: left;
     padding-right: 1.5%;
     border-right: 1px solid silver;
+    padding-top: 10px;
 }
 
 .right-bar {
     width: 66%;
     float: left;
 	padding-left: 2%;
+    padding-top: 10px;
 }
 
 .right-bar ul {
@@ -44,7 +47,10 @@ header #sex {
 }
 
 .right-bar ul#advice {
-    padding: 10px;
+    padding: 10px 0 10px 30px;
+}
+.right-bar ul#advice li{
+    padding-bottom: 5px;
 }
 
 .right-bar ul li {
@@ -58,17 +64,24 @@ header #sex {
 
 #advice-block {
     padding-top: 25px;
+    font-size: 20px;
 }
 
 #advice-selection-list li {
     list-style: none;
 }
 
+#advice-selection-list label {
+    font-size: 18px;
+}
+
 #advice-selection-list li input[type="checkbox"] {
     margin: 0 5px 0 0;
     vertical-align: text-top;
 }
-
+#modal-oe form{
+    margin: 0;
+}
 #advice-selection-dialog label input { display: inline;}
 /* O/E: modal */
 .modal.existing #oe-name,
@@ -77,7 +90,32 @@ header #sex {
     display: none;
 }
 
+#data-load-status {
+    width: 400px;
+    padding: 5px 20px;
+    margin: 0 auto;
+    bottom: 15px;
+    left: 50%;
+    margin-left: -220px;
+    position: fixed;
 
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 2px 11px black;
+    z-index: 5000;
+}
+
+
+.medicine-name {
+    font-size: 1.3em;
+}
+
+.treatment-details td { width: 40mm; font-size: 1.2em;}
+.treatment-details .middle-col { text-align: center; vertical-align: middle;}
+.treatment-details .second-row td { border-top: 1px solid black;}
+.treatment-details .duration {}
+.treatment-details .condition { }
+.treatment-details .schedule {width: 20mm; text-align: center; vertical-align: middle;}
 
 /*========================================================*/
 /** Printing
@@ -109,3 +147,9 @@ header #sex {
     border: none;
     box-shadow: none;
 }
+
+.printing button.close{
+    display: none;
+}
+
+.printing .container { border: none;}

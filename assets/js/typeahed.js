@@ -257,6 +257,7 @@
                 , options = typeof option == 'object' && option
             if (!data) $this.data('typeahead', (data = new Typeahead(this, options)))
             if (typeof option == 'string') data[option]()
+            else if(options){$.extend(data, options);}
         })
     }
 

@@ -3,35 +3,57 @@
 
 var Prescription = {
     init: function(){
+        Prescription.reset();
         Prescription.initializeModal();
 
-        Prescription.initializeControls();
+        Prescription.addNewOeControlFeature();
+        Prescription.addNewTestControlFeature();
+        Prescription.addNewComplainControlFeature();
+        Prescription.addNewTreatmentControlFeature();
+        Prescription.addResetControlFeature();
+        Prescription.addAdviceFeature();
+        Prescription.settingsFeature();
+
+
+
+
+        Prescription.addPrintFeature();
+
         Prescription.chromePrintWorkground();
+
+
+        setTimeout(Prescription.loadAllData, 2000);
     },
     addChiefComplain: function(data){
         var str  = '<span class="cc-name">'+data.name+'</span>';
         if(data.comment) str += ' <span class="cc-comment">'+ data.comment +'</span>';
 
-        $('<li class="complain-entry">'+str+'</li>').appendTo('#chief-complains');
+        $('<li class="complain-entry"><button data-dismiss="alert" class="close">&times;</button>'+str+'</li>').appendTo('#chief-complains');
     },
 
     addTest: function(data){
-        $('<li>'+data+'</li>').appendTo('#advised-tests');
+        $('<li><button data-dismiss="alert" class="close">&times;</button>'+data+'</li>').appendTo('#advised-tests');
     },
 
     addOE: function(data){
-        $('<li>'+data.shortName+': '+data.value+ ' ' +data.unit+'</li>').appendTo('#onsite-experiment');
+        $('<li><button data-dismiss="alert" class="close">&times;</button> '+data.shortName+': '+data.value+ ' ' +data.unit+'</li>').appendTo('#onsite-experiment');
     },
 
     addAdvice: function(data){
-        $('<li data-item-id="' + data.id + '">'+data.text+'</li>').appendTo('#advice');
+        $('<li data-item-id="' + data.id + '"> <button data-dismiss="alert" class="close">&times;</button> '+data.text+'</li>').appendTo('#advice');
     },
 
     reset: function(){
-        $('#advised-tests').empty();
-        $('#chief-complains').empty();
-        $('#onsite-experiment').empty();
+        $('#advised-tests').empty().parent().addClass('no-print');
+        $('#chief-complains').empty().parent().addClass('no-print');
+        $('#onsite-experiment').empty().parent().addClass('no-print');
+        //$('#treatment').empty().parent().addClass('no-print');
+
         $('#advice').empty();
+        $( '#data-load-status').hide();
+
+        var d = new Date();
+        $('#prescription-date').html(d.getDay() + '/' + d.getMonth() + '/' + d.getYear());
     },
 
     print: function(){
@@ -56,6 +78,17 @@ var Prescription = {
     },
 
     addAdviceFeature: function(){
+        $(DAO).on('dataloaded.advice', function(){
+            var $el = $('#advice-selection-list');
+            $el.empty();
+            if(DAO.data.advice.length > 0) {
+                $(DAO.data.advice).each(function(idx, item){
+                    $el.append('<li data-item-id="'+item.id+'"><label><input type="checkbox"><span>'+ item.text +'</span></label></li>');
+                });
+            }
+            $el.append('<li>New: <input type="text" id="newAdviceTxt" class="span6"></li>');
+        });
+
         $('#add-advice').on('click', function(){
             $('#advice-selection-dialog :checkbox').removeAttr('checked');
             $('#advice li').each(function(){
@@ -86,6 +119,21 @@ var Prescription = {
         });
     },
     addNewOeControlFeature: function(){
+
+        $(DAO).on('dataloaded.oe', function(){
+            var $el = $('#btn-add-oe').find('ul.dropdown-menu');
+            $el.empty();
+            if(DAO.data.oe.length) {
+                $(DAO.data.oe).each(function(idx, item){
+                    $el.prepend('<li class="existing-oe-item" data-short-name="'+ item.shortName +'" ><a href="#" >'+ item.shortName +': </a></li>');
+                });
+
+                $el.append('<li class="divider"></li>');
+            }
+            $el.append('<li id="btn-new-oe" class="new-oe"><a href="#">Add new...</a></li>')
+        });
+
+
         $('#btn-new-oe').live('click', function(){
                $('#modal-oe').removeClass('existing').modal('show').find('#oe-form').each(function(){this.reset()});
         });
@@ -110,16 +158,7 @@ var Prescription = {
     addNewComplainControlFeature: function(){
         var timerId;
 
-        $('#chief-complains-input').typeahead({
-            source: DAO.data.cc,
-            /*            updater: function(item) {
-             return item.name;
-             },*/
-            matcher: Prescription.utils.typeAhedMatcher,
-            highlighter: Prescription.utils.typeAhedHighlighter,
-            sorter: Prescription.utils.typeAhedSorter
-
-        }).change(function(){
+        $('#chief-complains-input').change(function(){
                 var   val = $(this).val()
                     , hasSubquery = val.indexOf('>') > -1
                     , mainQuery = hasSubquery ? val.split('>', 2)[0].trim() : val
@@ -130,6 +169,7 @@ var Prescription = {
                     $(this).val(mainQuery + ' > ' + subQuery.split('{num}', 2)[0]);
                 } else if(!hasSubquery && rec && rec.comments){
                     $(this).val(mainQuery + ' > ');
+                    $(this).typeahead('lookup');
                 } else {
                     //clearTimeout(timerId)
                     //timerId = setTimeout(function(){
@@ -139,19 +179,59 @@ var Prescription = {
 
                 }
 
+        });
+
+        $(DAO).on('dataloaded.cc', function(){
+            $el = $('#chief-complains-input');
+            $el.typeahead({
+                source: DAO.data.cc,
+                matcher: Prescription.utils.typeAhedMatcher,
+                highlighter: Prescription.utils.typeAhedHighlighter,
+                sorter: Prescription.utils.typeAhedSorter
+
             });
+        });
     },
 
     addNewTestControlFeature: function(){
-        $('#advised-tests-input').typeahead({
-           source: DAO.data.tests,
-           matcher: Prescription.utils.typeAhedMatcher ,
-           sorter: Prescription.utils.typeAhedSorter
+        $(DAO).on('dataloaded.tests', function(){
+            $('#advised-tests-input').typeahead({
+                source: DAO.data.tests,
+                matcher: Prescription.utils.typeAhedMatcher ,
+                sorter: Prescription.utils.typeAhedSorter
 
-        }).change(function(){
+            });
+        });
+
+        $('#advised-tests-input').change(function(){
                 Prescription.addTest($(this).val());
                 $(this).val('');
             });
+    },
+
+    addNewTreatmentControlFeature: function(){
+        $(DAO).on('dataloaded.medicine', function(){
+            $('#medicine-input').typeahead({
+                source: DAO.data.medicine,
+                matcher: Prescription.utils.typeAhedMatcher ,
+                sorter: Prescription.utils.typeAhedSorter
+
+            });
+        });
+
+
+        $('#dose-schedule').typeahead({
+            sorter: function(items){
+                var numbers = this.query.match(/(\d+)/g)
+                  , items
+
+                while(numbers.length < 3)
+                    numbers.push(0);
+               return [numbers.join(' + ')];
+            }
+        });
+
+
     },
 
     initializeModal: function(){
@@ -199,34 +279,99 @@ var Prescription = {
             }
         }
     },
-    initializeControls: function(){
-        DAO.loadDummyData();
-
-        Prescription.addNewOeControlFeature();
-        Prescription.addNewTestControlFeature();
-        Prescription.addNewComplainControlFeature();
-        Prescription.addResetControlFeature();
-        Prescription.addAdviceFeature();
 
 
+    syncAllData: function(callback){
 
+        var item,
+            timerId,
+            types = ['cc', 'oe', 'tests', 'advice', 'medicine'];
+        var total = types.length;
+        //$('#data-load-status').slideDown('fast');
+        $( '#data-load-status' ).effect( 'drop', {direction: 'down', mode: 'show'}, 500);
+        var callBack = function(){
+            if(item = types.shift()){
+                DAO.selectiveSyncData(item, callBack);
+            }
 
-        Prescription.addPrintFeature();
+            var pct = (100 / total) * (total - types.length);
+            $('#data-load-status .bar').css('width', pct+'%');
+            if(pct >= 99 ) {
+                clearTimeout(timerId);
+                timerId = setTimeout( function(){
+                    $('#data-load-status').effect( 'drop', {direction: 'down', mode: 'hide'}, 500, function(){$('#data-load-status .bar').css('width', '0%');});
+                    if(callback) callback();
 
-        var $el = $('#btn-add-oe').find('ul.dropdown-menu');
-        $(DAO.data.oe).each(function(idx, item){
-             $el.prepend('<li class="existing-oe-item" data-short-name="'+ item.shortName +'" ><a href="#" >'+ item.shortName +': </a></li>');
+                }, 3000);
+            }
+
+        }
+        callBack();
+    },
+
+    loadAllData: function(callback){
+
+        var item,
+            timerId,
+            types = ['cc', 'oe', 'tests', 'advice', 'medicine'];
+        var total = types.length;
+        //$('#data-load-status').slideDown('fast');
+        $( '#data-load-status' ).effect( 'drop', {direction: 'down', mode: 'show'}, 500);
+        var callBack = function(){
+            if(item = types.shift()){
+                DAO.loadData(item, callBack);
+            }
+
+            var pct = (100 / total) * (total - types.length);
+            $('#data-load-status .bar').css('width', pct+'%');
+            if(pct >= 99 ) {
+               clearTimeout(timerId);
+               timerId = setTimeout( function(){
+                   $('#data-load-status').effect( 'drop', {direction: 'down', mode: 'hide'}, 500, function(){$('#data-load-status .bar').css('width', '0%');});
+                   if(callback) callback();
+
+               }, 3000);
+            }
+
+        }
+        callBack();
+    },
+
+    settingsFeature: function(){
+        $('#settings').click(function(){
+            $('#settings-dialog').modal('show');
         });
 
-        var $el = $('#advice-selection-list');
-        $(DAO.data.advice).each(function(idx, item){
-             $el.append('<li data-item-id="'+item.id+'"><label><input type="checkbox"><span>'+ item.text +'</span></label></li>');
+        $('#create-db').click(function(){
+            var $this = $(this);
+            $this.button('loading');
+            DAO.resetDatabase(function(){$this.button('complete');})
         });
-        $el.append('<li>New: <input type="text" id="newAdviceTxt" class="span6"></li>');
 
+        $('#reload-db').click(function(){
+            var $this = $(this);
+            $this.button('loading');
+            Prescription.loadAllData(function(){$this.button('complete');})
+        });
+
+        $('#load-sample-data').click(function(){
+            var $this = $(this);
+            $this.button('loading');
+            DAO.loadDummyData();
+            $this.button('complete');
+        });
+
+        $('#sync-db').click(function(){
+            var $this = $(this);
+            $this.button('loading');
+            Prescription.syncAllData(function(){$this.button('complete');})
+        });
 
     }
 }
+
+
+
 
 
     Prescription.utils = {
@@ -305,6 +450,7 @@ var Prescription = {
         }
     }
 
+window.Prescription = Prescription;
 
 $(document).ready(function(){
     Prescription.init();

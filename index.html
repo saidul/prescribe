@@ -47,66 +47,28 @@
 <div class="wrapper">
   <header>
     <div class="actions">
-		<button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button>
+        <button class="btn btn-warning" id="save">Save</button> <button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button> <button class="btn btn-inverse" id="settings">Settings</button>
 	</div>
-    <label for="patient-name" class="pull-left">
-        Name: <input id="patient-name" type="text" placeholder="Patient name">
-    </label>
 
-    <div id="age" class="btn-group pull-left">
-        <button class="btn">Age</button>
-        <button class="btn dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            <li><a href="#">00-05</a></li>
-            <li><a href="#">06-10</a></li>
-            <li><a href="#">11-15</a></li>
-            <li><a href="#">16-20</a></li>
-            <li><a href="#">21-25</a></li>
-            <li><a href="#">26-30</a></li>
-            <li><a href="#">31-35</a></li>
-            <li><a href="#">36-40</a></li>
-            <li><a href="#">41-45</a></li>
-            <li><a href="#">46-50</a></li>
-            <li><a href="#">51-55</a></li>
-            <li><a href="#">56-60</a></li>
-            <li><a href="#">61-65</a></li>
-            <li><a href="#">66-70</a></li>
-            <li><a href="#">71-75</a></li>
-            <li><a href="#">76-80</a></li>
-            <li><a href="#">81-85</a></li>
-            <li><a href="#">86-90</a></li>
-            <li><a href="#">91-95</a></li>
-            <li><a href="#">96-99</a></li>
-        </ul>
-    </div>
+    <label for="patient-name" class="pull-left">Name: <input id="patient-name" type="text" placeholder="Patient name"></label>
+    <label for="patient-age" class="pull-left">Age: <input type="text" id="patient-age" class="span1"></label>
+    <label for="patient-sex" class="pull-left">Sex: <input type="text" id="patient-sex" class="span1"  data-provide="typeahead" data-source='["Male","Female"]'></label>
 
-    <div id="sex" class="btn-group pull-left">
-        <button class="btn">Sex</button>
-        <button class="btn dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            <li><a href="#">Male</a></li>
-            <li><a href="#">Female</a></li>
-        </ul>
-    </div>
-    <label for="date" class="pull-left">
-        Date: <input type="text" id="date" class="input-small" placeholder="Select one">
+    <label class="pull-left">
+        Date: <span id="prescription-date"></span>
     </label>
   </header>
 
   <div class="container">
       <div class="left-bar">
           <div id="chief-complains-block">
-          C/C:
-          <ul id="chief-complains"></ul>
-          <input id="chief-complains-input" class="typeahead no-print" placeholder="Complaints..." type="text">
+              <h4>C/C:</h4>
+              <ul id="chief-complains"></ul>
+              <input id="chief-complains-input" class="typeahead no-print" placeholder="Complaints..." type="text">
           </div>
 
           <div id="onsite-experiment-block">
-              O/E:
+              <h4>O/E:</h4>
               <ul id="onsite-experiment"></ul>
 
               <div id="btn-add-oe" class="btn-group">
@@ -122,21 +84,42 @@
           </div>
 
           <div id="advised-tests-block">
-              Adv:
+              <h4>Adv:</h4>
               <ul id="advised-tests"></ul>
               <input id="advised-tests-input" class="typeahead no-print" placeholder="Tests..." type="text">
           </div>
       </div>
       <div class="right-bar">
-          <ul>
+
+          <div id="treatment-block">
+
+          <ul id="treatment">
               <li>
-				<input id="medicine-input" class="typeahead no-print" placeholder="Medicine name" type="text">
-				<input id="dose-schedule-input" class="input-small typeahead no-print" placeholder="Dose schedule" type="text">
-				<input id="dose-instruction-input" class="input-medium typeahead no-print" placeholder="Dose schedule" type="text">
-			  </li>
-              <li><span>Tab. Napa Extra 500</span><span>8+8+8</span><span>(যাবত জীবন খাবেন)</span></li>
-              <li><a class="btn" href="#">Add new line</a></li>
+                  <button data-dismiss="alert" class="close">&times;</button>
+                  <div class="medicine-name">Tab. Napa Extra 500</div>
+                  <table class="treatment-details">
+                      <tr class="first-row">
+                          <td class="schedule" rowspan="2">2+0+2</td>
+                          <td class="middle-col">&nbsp;</td>
+                          <td class="duration" rowspan="2">১৫ দিন</td>
+                      </tr>
+                      <tr class="second-row"><td class="middle-col condition">ভরা পেটে</td></tr>
+                  </table>
+              </li>
           </ul>
+
+
+
+          <ul class="no-print">
+            <li> <input id="medicine-input" class="typeahead no-print span6" placeholder="Medicine name" type="text"> </li>
+            <li>
+                <input id="dose-schedule" class="input-small typeahead no-print" placeholder="Schedule" type="text">
+                <input id="dose-condition" class="input-medium typeahead no-print" placeholder="Condition" type="text">
+                <input id="dose-duration" class="input-medium typeahead no-print" placeholder="Duration" type="text">
+                <button class="btn btn-primary">Add</button>
+            </li>
+          </ul>
+          </div>
 
           <div id="advice-block">
               উপদেশঃ
@@ -198,9 +181,7 @@
     </div>
     <div class="modal-body">
 
-        <ul id="advice-selection-list">
-
-        </ul>
+        <ul id="advice-selection-list"></ul>
 
     </div>
     <div class="modal-footer">
@@ -208,6 +189,30 @@
         <a href="#" class="btn btn-primary" data-dismiss="modal">Save</a>
     </div>
 </div>
+
+
+
+<div class="modal hide fade" id="settings-dialog">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Settings</h3>
+    </div>
+    <div class="modal-body">
+        <div class="alert alert-block">
+            <h4 class="alert-heading">Warning!</h4>
+            This page contains action that may harm your database. Please proceed cautiously...
+        </div>
+        <button id="create-db" data-loading-text="Resetting database..."  data-complete-text="Reset complete" class="btn btn-danger">Reset Database</button>
+        <button id="load-sample-data" data-loading-text="Loading..."  data-complete-text="Data Loaded" class="btn">Load Sample Data</button>
+        <button id="reload-db" data-loading-text="Loading..."  data-complete-text="Data Reloaded" class="btn btn-success">Reload Data</button>
+        <button id="sync-db" data-loading-text="Syncing..."  data-complete-text="Data Synced" class="btn btn-success">Sync DB</button>
+
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">Close</a>
+    </div>
+</div>
+
 
 <div class="modal hide fade" id="wait-dialog">
     <div class="modal-header">
@@ -228,5 +233,11 @@
     </div>
 </div>
 
+<div id="data-load-status">
+    Loading data...
+    <div class="progress progress-striped active">
+        <div class="bar" style="width: 0%;"></div>
+    </div>
+</div>
 </body>
 </html>
