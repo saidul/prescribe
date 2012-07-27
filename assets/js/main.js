@@ -23,10 +23,15 @@ var Prescription = {
         $('<li>'+data.shortName+': '+data.value+ ' ' +data.unit+'</li>').appendTo('#onsite-experiment');
     },
 
+    addAdvice: function(data){
+        $('<li data-item-id="' + data.id + '">'+data.text+'</li>').appendTo('#advice');
+    },
+
     reset: function(){
         $('#advised-tests').empty();
         $('#chief-complains').empty();
         $('#onsite-experiment').empty();
+        $('#advice').empty();
     },
 
     print: function(){
@@ -47,6 +52,26 @@ var Prescription = {
                 Prescription.reset();
             });
 
+        });
+    },
+
+    addAdviceFeature: function(){
+        $('#add-advice').on('click', function(){
+            $('#advice-selection-dialog :checkbox').removeAttr('checked');
+            $('#advice li').each(function(){
+                $('#advice-selection-dialog li[data-item-id='+$(this).data('itemId')+'] :checkbox').attr('checked', true);
+            });
+            $('#advice-selection-dialog').modal('show');
+        });
+
+        $('#advice-selection-dialog .btn.btn-primary').click(function(){
+            $('#advice').empty();
+            $('#advice-selection-dialog').find(':checked').parent().each(function(){
+                Prescription.addAdvice({
+                    id: $(this).data('itemId'),
+                    text: $(this).find('span').html()
+                });
+            });
         });
     },
     addNewOeControlFeature: function(){
@@ -72,6 +97,8 @@ var Prescription = {
     },
 
     addNewComplainControlFeature: function(){
+        var timerId;
+
         $('#chief-complains-input').typeahead({
             source: DAO.data.cc,
             /*            updater: function(item) {
@@ -93,9 +120,12 @@ var Prescription = {
                 } else if(!hasSubquery && rec && rec.comments){
                     $(this).val(mainQuery + ' > ');
                 } else {
-                    Prescription.addChiefComplain({name: mainQuery, comment: subQuery});
+                    //clearTimeout(timerId)
+                    //timerId = setTimeout(function(){
+                        Prescription.addChiefComplain({name: mainQuery, comment: subQuery});
+                        $(this).val('');
+                    //}, 200);
 
-                    $(this).val('');
                 }
 
             });
@@ -165,6 +195,7 @@ var Prescription = {
         Prescription.addNewTestControlFeature();
         Prescription.addNewComplainControlFeature();
         Prescription.addResetControlFeature();
+        Prescription.addAdviceFeature();
 
 
 
@@ -175,6 +206,14 @@ var Prescription = {
         $(DAO.data.oe).each(function(idx, item){
              $el.prepend('<li class="existing-oe-item" data-short-name="'+ item.shortName +'" ><a href="#" >'+ item.shortName +': </a></li>');
         });
+
+        var $el = $('#advice-selection-list');
+        $(DAO.data.advice).each(function(idx, item){
+             $el.append('<li data-item-id="'+item.id+'"><input type="checkbox"><span>'+ item.text +'</span></li>');
+        });
+        $el.append('<li>New: <input type="text" id="newAdviceTxt"></li>');
+
+
     }
 }
 
