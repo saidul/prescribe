@@ -25,6 +25,51 @@ var Prescription = {
         setTimeout(Prescription.loadAllData, 2000);
     },
 
+    getPrescriptionData: function(){
+        var pData = {
+            name: $('#patient-name').val(),
+            age:  $('#patient-age').val(),
+            sex:  $('#patient-sex').val(),
+            date: $('#prescription-date').text(),
+            data: { }
+        }
+
+        var elSelectors = ['#advised-tests', '#chief-complains', '#onsite-experiment', '#treatment', "#advice"];
+        $(elSelectors.join(',')).find('li').each(function(){
+            var $this =  $(this);
+            var data = $this.data('prescriptionData');
+            if(data) {
+                var type = $this.parent().data('type');
+                if(!pData.data[type]) pData.data[type] = [];
+                pData.data[type].push(data);
+            }
+        });
+
+        return pData;
+    },
+
+    setPrescriptionData: function(pData){
+        $('#patient-name').val(pData.name);
+        $('#patient-age').val(pData.age);
+        $('#patient-sex').val(pData.sex);
+        $('#prescription-date').text(pData.date);
+
+
+        var applyData = function(d, callable) {
+            if(!d) return;
+
+            for(var i=0; i<d.length; i++) {
+                callable(d[i]);
+            }
+        }
+
+        applyData(pData.data.cc, Prescription.addChiefComplain);
+        applyData(pData.data.oe, Prescription.addOE);
+        applyData(pData.data.tests, Prescription.addTest);
+        applyData(pData.data.advice, Prescription.addAdvice);
+        applyData(pData.data.treatments, Prescription.addTreatment);
+    },
+
     addChiefComplain: function(data){
         var str  = '<span class="cc-name">'+data.name+'</span>';
         if(data.comment) str += ' <span class="cc-comment">'+ data.comment +'</span>';
@@ -63,17 +108,28 @@ var Prescription = {
         $('#advised-tests').empty().parent().addClass('no-print');
         $('#chief-complains').empty().parent().addClass('no-print');
         $('#onsite-experiment').empty().parent().addClass('no-print');
-        //$('#treatment').empty().parent().addClass('no-print');
+        $('#treatment').empty().parent().addClass('no-print');
 
         $('#advice').empty();
         $( '#data-load-status').hide();
 
         var d = new Date();
         $('#prescription-date').html(d.getDay() + '/' + d.getMonth() + '/' + d.getYear());
+        $('#patient-name').val('');
+        $('#patient-age').val('');
+        $('#patient-sex').val('');
     },
 
     print: function(){
         $('body').addClass('printing');
+
+        var elSelectors = ['#advised-tests', '#chief-complains', '#onsite-experiment', '#treatment'];
+        for(var i=0; i<elSelectors.length; i++) {
+            var $el = $(elSelectors[i]);
+            if($el.find('li').length)
+                $el.parent().removeClass('no-print');
+        }
+
         window.print();
         $('body').removeClass('printing');
     },
@@ -343,18 +399,18 @@ var Prescription = {
             types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration'];
         var total = types.length;
         //$('#data-load-status').slideDown('fast');
-        $( '#data-load-status' ).effect( 'drop', {direction: 'down', mode: 'show'}, 500);
+        Prescription.utils.showProgressBar({msg: 'Synchronizing data...'});
         var callBack = function(){
             if(item = types.shift()){
                 DAO.selectiveSyncData(item, callBack);
             }
 
             var pct = (100 / total) * (total - types.length);
-            $('#data-load-status .bar').css('width', pct+'%');
+            Prescription.utils.updateProgressBar({pct: pct, msg: 'Synchronizing '+(item ? item +'...' : 'Completed.')});
             if(pct >= 99 ) {
                 clearTimeout(timerId);
                 timerId = setTimeout( function(){
-                    $('#data-load-status').effect( 'drop', {direction: 'down', mode: 'hide'}, 500, function(){$('#data-load-status .bar').css('width', '0%');});
+                    Prescription.utils.hideProgressBar();
                     if(callback) callback();
 
                 }, 2000);
@@ -371,18 +427,18 @@ var Prescription = {
             types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration'];
         var total = types.length;
         //$('#data-load-status').slideDown('fast');
-        $( '#data-load-status' ).effect( 'drop', {direction: 'down', mode: 'show'}, 500);
+        Prescription.utils.showProgressBar({msg: 'Loading data...'});
         var callBack = function(){
             if(item = types.shift()){
                 DAO.loadData(item, callBack);
             }
 
             var pct = (100 / total) * (total - types.length);
-            $('#data-load-status .bar').css('width', pct+'%');
+            Prescription.utils.updateProgressBar({pct: pct, msg: 'Loading '+(item ? item + '...' : 'Completed.')});
             if(pct >= 99 ) {
                clearTimeout(timerId);
                timerId = setTimeout( function(){
-                   $('#data-load-status').effect( 'drop', {direction: 'down', mode: 'hide'}, 500, function(){$('#data-load-status .bar').css('width', '0%');});
+                   Prescription.utils.hideProgressBar();
                    if(callback) callback();
 
                }, 2000);
@@ -512,6 +568,22 @@ var Prescription = {
             }
 
             return childMatch.concat(beginswith, caseSensitive, caseInsensitive);
+        },
+
+        showProgressBar: function(data){
+            if(data) Prescription.utils.updateProgressBar(data);
+            $( '#data-load-status' ).effect( 'drop', {direction: 'down', mode: 'show'}, 500);
+        },
+        hideProgressBar: function(){
+            $('#data-load-status').effect( 'drop', {direction: 'down', mode: 'hide'}, 500, function(){
+                $('#data-load-status .bar').css('width', '0%');
+            });
+        },
+        updateProgressBar: function(data){
+            if(data.pct)
+                $('#data-load-status .bar').css('width', data.pct+'%');
+            if(data.msg)
+                $('#data-load-status .progress-msg').html(data.msg);
         }
     }
 

@@ -63,13 +63,13 @@
       <div class="left-bar">
           <div id="chief-complains-block">
               <h4>C/C:</h4>
-              <ul id="chief-complains"></ul>
+              <ul id="chief-complains"  data-type="cc"></ul>
               <input id="chief-complains-input" class="typeahead no-print" placeholder="Complaints..." type="text">
           </div>
 
           <div id="onsite-experiment-block">
               <h4>O/E:</h4>
-              <ul id="onsite-experiment"></ul>
+              <ul id="onsite-experiment"  data-type="oe"></ul>
 
               <div id="btn-add-oe" class="btn-group">
                   <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -85,28 +85,15 @@
 
           <div id="advised-tests-block">
               <h4>Adv:</h4>
-              <ul id="advised-tests"></ul>
+              <ul id="advised-tests"  data-type="tests"></ul>
               <input id="advised-tests-input" class="typeahead no-print" placeholder="Tests..." type="text">
           </div>
       </div>
       <div class="right-bar">
 
-          <div id="treatment-block">
+          <div id="treatment-block" >
 
-          <ul id="treatment">
-              <li>
-                  <button data-dismiss="alert" class="close">&times;</button>
-                  <div class="medicine-name">Tab. Napa Extra 500</div>
-                  <table class="treatment-details">
-                      <tr class="first-row">
-                          <td class="schedule" rowspan="2">2+0+2</td>
-                          <td class="middle-col">&nbsp;</td>
-                          <td class="duration" rowspan="2">১৫ দিন</td>
-                      </tr>
-                      <tr class="second-row"><td class="middle-col condition">ভরা পেটে</td></tr>
-                  </table>
-              </li>
-          </ul>
+          <ul id="treatment" data-type="treatments"></ul>
 
 
 
@@ -123,7 +110,7 @@
 
           <div id="advice-block">
               উপদেশঃ
-              <ul id="advice"></ul>
+              <ul id="advice"  data-type="advice"></ul>
               <input type="button"  id="add-advice" class="btn" value="Add Advices">
           </div>
       </div>
@@ -234,7 +221,7 @@
 </div>
 
 <div id="data-load-status">
-    Loading data...
+    <span class="progress-msg">Loading data...</span>
     <div class="progress progress-striped active">
         <div class="bar" style="width: 0%;"></div>
     </div>
