@@ -24,23 +24,39 @@ var Prescription = {
 
         setTimeout(Prescription.loadAllData, 2000);
     },
+
     addChiefComplain: function(data){
         var str  = '<span class="cc-name">'+data.name+'</span>';
         if(data.comment) str += ' <span class="cc-comment">'+ data.comment +'</span>';
 
-        $('<li class="complain-entry"><button data-dismiss="alert" class="close">&times;</button>'+str+'</li>').appendTo('#chief-complains');
+        $('<li class="complain-entry"><button data-dismiss="alert" class="close">&times;</button>'+str+'</li>').appendTo('#chief-complains').data('prescriptionData', data);
     },
 
     addTest: function(data){
-        $('<li><button data-dismiss="alert" class="close">&times;</button>'+data+'</li>').appendTo('#advised-tests');
+        $('<li><button data-dismiss="alert" class="close">&times;</button>'+data+'</li>').appendTo('#advised-tests').data('prescriptionData', data);
     },
 
     addOE: function(data){
-        $('<li><button data-dismiss="alert" class="close">&times;</button> '+data.shortName+': '+data.value+ ' ' +data.unit+'</li>').appendTo('#onsite-experiment');
+        $('<li><button data-dismiss="alert" class="close">&times;</button> '+data.shortName+': '+data.value+ ' ' +data.unit+'</li>').appendTo('#onsite-experiment').data('prescriptionData', data);
     },
 
     addAdvice: function(data){
-        $('<li data-item-id="' + data.id + '"> <button data-dismiss="alert" class="close">&times;</button> '+data.text+'</li>').appendTo('#advice');
+        $('<li data-item-id="' + data.id + '"> <button data-dismiss="alert" class="close">&times;</button> '+data.text+'</li>').appendTo('#advice').data('prescriptionData', data);
+    },
+
+    addTreatment: function (data) {
+        var treatMent = '<li><button data-dismiss="alert" class="close">&times;</button>' +
+        '<div class="medicine-name">'+(data.medicine ? data.medicine.name : '&nbsp')+'</div>' +
+        '<table class="treatment-details">' +
+            '<tr class="first-row">' +
+                '<td class="schedule" rowspan="2">'+ (data.schedule ? data.schedule : '&nbsp;') +'</td>' +
+                '<td class="middle-col">&nbsp;</td>' +
+                '<td class="duration" rowspan="2">'+ (data.duration ? data.duration.name : '&nbsp;') +'</td>' +
+            '</tr>' +
+            '<tr class="second-row"><td class="middle-col condition">'+ (data.condition ? data.condition.name : '&nbsp;') +'</td></tr>' +
+        '</table></li>';
+
+        $(treatMent).appendTo('#treatment').data('prescriptionData', data);
     },
 
     reset: function(){
@@ -244,6 +260,7 @@ var Prescription = {
                 var numbers = this.query.match(/(\d+)/g)
                   , items
 
+                if(!numbers) numbers = [];
                 while(numbers.length < 3)
                     numbers.push(0);
 
@@ -251,6 +268,24 @@ var Prescription = {
             }
         });
 
+
+        $('#add-treatment').click(function(){
+            var medicine = $('#medicine-input').val().trim() ? DAO.getMedicineByName($('#medicine-input').val()) : null;
+            var durationObj = $('#dose-duration').val().trim() ? DAO.getDurationByName($('#dose-duration').val()) : null;
+            var condition = $('#dose-condition').val().trim() ? DAO.getConditionByName($('#dose-condition').val()) : null;
+
+            if(!medicine && !durationObj && !condition) return;
+
+            Prescription.addTreatment({
+                medicine: medicine,
+                duration: durationObj,
+                condition: condition,
+                schedule: $('#dose-schedule').val()
+
+            });
+
+            $('#treatment-input-fields input[type=text]').val('');
+        })
 
     },
 
@@ -322,7 +357,7 @@ var Prescription = {
                     $('#data-load-status').effect( 'drop', {direction: 'down', mode: 'hide'}, 500, function(){$('#data-load-status .bar').css('width', '0%');});
                     if(callback) callback();
 
-                }, 3000);
+                }, 2000);
             }
 
         }
@@ -350,7 +385,7 @@ var Prescription = {
                    $('#data-load-status').effect( 'drop', {direction: 'down', mode: 'hide'}, 500, function(){$('#data-load-status .bar').css('width', '0%');});
                    if(callback) callback();
 
-               }, 3000);
+               }, 2000);
             }
 
         }

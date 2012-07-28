@@ -23,6 +23,9 @@ DAO = {
         duration: []
 
     },
+    generateId: function(){
+        return Date.now();
+    },
 
     getCheifComplainByName: function(name){
         for(var i=0;i<DAO.data.cc.length;i++) {
@@ -34,6 +37,36 @@ DAO = {
         for(var i=0;i<DAO.data.oe.length;i++) {
             if(DAO.data.oe[i].shortName == shortName) return DAO.data.oe[i];
         }
+    },
+
+    getMedicineByName: function (name) {
+        for(var i=0;i<DAO.data.medicine.length;i++) {
+            if(DAO.data.medicine[i].name == name) return DAO.data.medicine[i];
+        }
+
+        var rec = {id: DAO.generateId(), name: name, dirty: true };
+        DAO.data.medicine.push(rec);
+        return rec;
+    },
+
+    getDurationByName: function (name) {
+        for(var i=0;i<DAO.data.duration.length;i++) {
+            if(DAO.data.duration[i].name == name) return DAO.data.duration[i];
+        }
+
+        var rec = {id: DAO.generateId(), name: name, dirty: true };
+        DAO.data.duration.push(rec);
+        return rec;
+    },
+
+    getConditionByName: function (name) {
+        for(var i=0;i<DAO.data.condition.length;i++) {
+            if(DAO.data.condition[i].name == name) return DAO.data.condition[i];
+        }
+
+        var rec = {id: DAO.generateId(), name: name, dirty: true };
+        DAO.data.condition.push(rec);
+        return rec;
     },
 
     loadData: function(type, callback){
