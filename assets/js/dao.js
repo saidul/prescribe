@@ -6,6 +6,8 @@ DAO = {
         get_oe: 'index.php/getData/oe',
         get_tests: 'index.php/getData/tests',
         get_advice: 'index.php/getData/advice',
+        get_condition: 'index.php/getData/condition',
+        get_duration: 'index.php/getData/duration',
         get_medicine: 'index.php/getData/medicine'
 
 
@@ -16,7 +18,9 @@ DAO = {
         oe: [],
         tests: [],
         advice: [],
-        medicine: []
+        medicine: [],
+        condition: [],
+        duration: []
 
     },
 
@@ -104,9 +108,25 @@ DAO = {
            {id: 6, name: 'Tab. Guji Muji Mush 500'},
            {id: 7, name: 'Tab. Daomin 300'},
            {id: 8, name: 'Tab. Diamicron MR 50'},
-           {id: 9, name: 'Tab. Kow Mow u 00'},
+           {id: 9, name: 'Tab. Kow Mow u 00'}
        ];
         $(DAO).trigger('dataloaded.medicine');
+
+       DAO.data.condition = [
+           {id: 1, name: 'Khaoar age'},
+           {id: 2, name: 'Khaoar pore'},
+           {id: 3, name: 'Before dinner'},
+           {id: 4, name: 'After dinner'}
+       ];
+        $(DAO).trigger('dataloaded.condition');
+
+       DAO.data.duration = [
+           {id: 1, name: '{num} day'},
+           {id: 2, name: '{num} month'},
+           {id: 3, name: '{num} week'},
+           {id: 4, name: '{num} hour'}
+       ];
+        $(DAO).trigger('dataloaded.duration');
 
        DAO.data.tests = [
             { id:10, name: 'USG of L/A' },

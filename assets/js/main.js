@@ -220,6 +220,25 @@ var Prescription = {
         });
 
 
+        $(DAO).on('dataloaded.condition', function(){
+            $('#dose-condition').typeahead({
+                source: DAO.data.condition,
+                matcher: Prescription.utils.typeAhedMatcher ,
+                sorter: Prescription.utils.typeAhedSorter
+
+            });
+        });
+
+        $(DAO).on('dataloaded.duration', function(){
+            $('#dose-duration').typeahead({
+                source: DAO.data.duration,
+                matcher: Prescription.utils.typeAhedMatcher ,
+                sorter: Prescription.utils.typeAhedSorter
+
+            });
+        });
+
+
         $('#dose-schedule').typeahead({
             sorter: function(items){
                 var numbers = this.query.match(/(\d+)/g)
@@ -227,6 +246,7 @@ var Prescription = {
 
                 while(numbers.length < 3)
                     numbers.push(0);
+
                return [numbers.join(' + ')];
             }
         });
@@ -285,7 +305,7 @@ var Prescription = {
 
         var item,
             timerId,
-            types = ['cc', 'oe', 'tests', 'advice', 'medicine'];
+            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration'];
         var total = types.length;
         //$('#data-load-status').slideDown('fast');
         $( '#data-load-status' ).effect( 'drop', {direction: 'down', mode: 'show'}, 500);
@@ -313,7 +333,7 @@ var Prescription = {
 
         var item,
             timerId,
-            types = ['cc', 'oe', 'tests', 'advice', 'medicine'];
+            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration'];
         var total = types.length;
         //$('#data-load-status').slideDown('fast');
         $( '#data-load-status' ).effect( 'drop', {direction: 'down', mode: 'show'}, 500);
@@ -371,7 +391,15 @@ var Prescription = {
 }
 
 
+    function prepareOption(query, item){
+        var numbers = query.match(/(\d+)/g);
+        var i = 0;
+        var tmp = item.replace(/({num})/g, function(s, key){
+            return numbers && i < numbers.length ? numbers[i++] : s;
+        });
 
+        return tmp;
+    }
 
 
     Prescription.utils = {
@@ -405,14 +433,15 @@ var Prescription = {
 
         typeAhedMatcher:function(item){
             var query = this.query,
-                hasSubquery = this.query.indexOf('>') > -1;
+                hasSubquery = this.query.indexOf('>') > -1
+                , tmp = prepareOption(this.query, item.name);
 
             if(hasSubquery) {
                 query = this.query.split('>', 2)[0].trim();
                 return item.name == query;
             }
 
-            return ~item.name.toLowerCase().indexOf(query.toLowerCase());
+            return ~tmp.toLowerCase().indexOf(query.toLowerCase());
         },
 
         typeAhedSorter: function (items) {
@@ -426,14 +455,11 @@ var Prescription = {
                 , subQuery = hasSubquery ? this.query.split('>', 2)[1].trim() : ''
 
 
+
             while (item = items.shift()) {
                 if(mainQuery.toLowerCase() == item.name.toLowerCase() && item.comments) {
                     $(item.comments).each(function (idx, comment){
-                        var numbers = subQuery.match(/(\d+)/g);
-                        var i = 0;
-                        var tmp = comment.comment.replace(/({num})/g, function(s, key){
-                            return numbers && i < numbers.length ? numbers[i++] : s;
-                        });
+                        var tmp = prepareOption(subQuery, comment.comment);
 
                         if(tmp.toLowerCase().indexOf(subQuery.toLowerCase()) > -1)
                             childMatch.push(item.name + ' > ' + tmp);
@@ -441,7 +467,11 @@ var Prescription = {
                             childMatch.push(item.name + ' > ' + tmp);
                     });
                 }
-                if (!item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item.name)
+
+                var tmp = prepareOption(this.query, item.name);
+
+                if (!tmp.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(tmp)
+                else if (!item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item.name)
                 else if (~item.name.indexOf(this.query)) caseSensitive.push(item.name)
                 else caseInsensitive.push(item.name)
             }

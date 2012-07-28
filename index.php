@@ -11,18 +11,22 @@ $app['insert-map'] = array(
     'onsite_examination' => 'INSERT INTO "main"."onsite_examination" ( "id" , "name", "shortName" , "unit" ) values (:id, :name, :shortName, :unit);',
     'tests'              => 'INSERT INTO "main"."tests" ( "id" , "name" ) values (:id, :name);',
     'medicine'           => 'INSERT INTO "main"."medicine" ( "id" , "name" ) values (:id, :name);',
+    'duration'           => 'INSERT INTO "main"."duration" ( "id" , "name" ) values (:id, :name);',
+    'condition'          => 'INSERT INTO "main"."condition" ( "id" , "name" ) values (:id, :name);',
     'advice'             => 'INSERT INTO "main"."advice" ( "id" , "text" , "useCount" ) values (:id, :text, :useCount);',
     'comments'           => 'INSERT INTO "main"."comments" ( "id" , "comment" , "cType" , "fKey" ) values (:id, :comment, :cType, :fKey);',
     'prescription'       => 'INSERT INTO "main"."prescription" ( "id" , "name" , "age" , "date" , "parent" , "data" ) values (:id, :name, :age, :date, :parent, :data);',
 );
 
 $app['table-map'] = array(
-    'cc'       => 'chief_complain',
-    'oe'       => 'onsite_examination',
-    'tests'    => 'tests',
-    'advice'   => 'advice',
-    'comments' => 'comments',
-    'medicine' => 'medicine',
+    'cc'        => 'chief_complain',
+    'oe'        => 'onsite_examination',
+    'tests'     => 'tests',
+    'advice'    => 'advice',
+    'comments'  => 'comments',
+    'medicine'  => 'medicine',
+    'condition' => 'condition',
+    'duration'  => 'duration',
 );
 
 
@@ -49,6 +53,8 @@ $app->get('/install/db', function() use ($app){
        'onsite_examination' => 'CREATE TABLE "main"."onsite_examination" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT, "shortName" TEXT NOT NULL, "unit" TEXT);',
        'tests'              => 'CREATE TABLE "main"."tests" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT NOT NULL );',
        'medicine'           => 'CREATE TABLE "main"."medicine" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT NOT NULL );',
+       'condition'          => 'CREATE TABLE "main"."condition" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT NOT NULL );',
+       'duration'           => 'CREATE TABLE "main"."duration" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT NOT NULL );',
        'advice'             => 'CREATE TABLE "main"."advice" ( "id" INTEGER PRIMARY KEY NOT NULL, "text" TEXT, "useCount" INTEGER NOT NULL DEFAULT (0) );',
        'comments'           => 'CREATE TABLE "main"."comments" ( "id" INTEGER NOT NULL, "comment" TEXT NOT NULL, "cType" TEXT NOT NULL, "fKey" INTEGER NOT NULL );',
        'prescription'       => 'CREATE TABLE "main"."prescription" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT, "age" INTEGER, "date" INTEGER, "parent" INTEGER, "data" TEXT );',
@@ -160,6 +166,8 @@ function is_exist($table, $row, $app) {
         'tests'              => 'name',
         'advice'             => 'text',
         'medicine'           => 'name',
+        'condition'          => 'name',
+        'duration'           => 'name',
         'comments'           => 'comment'
     );
 
