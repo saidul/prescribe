@@ -43,7 +43,7 @@
 
         constructor: Typeahead
 
-        , select: function () {
+        , select: function (mouse) {
             var val = this.$menu.find('.active').data('value');
             if(this.shown) {
                 this.$element.val(this.updater(val))
@@ -51,6 +51,9 @@
             } else {
                 this.$element.trigger('select');
             }
+
+            if(mouse) this.$element.trigger('select');
+
             return this.hide()
         }
 
@@ -242,7 +245,7 @@
         , click: function (e) {
             e.stopPropagation()
             e.preventDefault()
-            this.select()
+            this.select(true)
         }
 
         , mouseenter: function (e) {

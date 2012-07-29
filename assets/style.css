@@ -155,7 +155,7 @@ header #sex {
 
  /*==========================================================*/
 
-.disable-edit .editor-control {
+.disable-edit .editor-control,.disable-edit .close {
     display: none;
 }
 

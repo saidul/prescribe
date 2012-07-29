@@ -502,7 +502,11 @@ var Prescription = {
             select: function( event, ui ) {
                 //trigger load
             }
-        })
+        }).keyup(function(e){
+                if(e.keyCode == 13){
+                    $('#load-prescription').click();
+                }
+            })
         .data( "autocomplete" )._renderItem = function( ul, item ) {
             return $( "<li></li>" )
                 .addClass('autoCompleteItem')
@@ -807,15 +811,15 @@ var Prescription = {
                         childMatch.push(item.name + ' > ' + tmp);
                 });
             }
-
-            while (item = items.shift()) {
-                var tmp = prepareOption(this.query, item.name);
-                if (!tmp.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(tmp)
-                else if (!item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item.name)
-                else if (~item.name.indexOf(this.query)) caseSensitive.push(item.name)
-                else caseInsensitive.push(item.name)
+            else {
+                while (item = items.shift()) {
+                    var tmp = prepareOption(this.query, item.name);
+                    if (!tmp.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(tmp)
+                    else if (!item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item.name)
+                    else if (~item.name.indexOf(this.query)) caseSensitive.push(item.name)
+                    else caseInsensitive.push(item.name)
+                }
             }
-
             return childMatch.concat(beginswith, caseSensitive, caseInsensitive);
         },
         showProgressBar: function(data){
