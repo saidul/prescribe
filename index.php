@@ -104,6 +104,27 @@ $app->get('/getData/{type}', function($type) use ($app){
 
 });
 
+$app->post('/removeData/{type}', function($type) use ($app){
+
+    if(!isset($app['table-map'][$type])) $app->abort(500, "Unknown type");
+
+    $request = json_decode($app['request']->request->get('request'), true);
+
+    $tableName = $app['table-map'][$type];
+    $sql = "DELETE from {$tableName} WHERE id=:id;";
+    /** @var $statement PDOStatement */
+    $statement = $app['dbh']->prepare($sql);
+    $count = 0;
+    foreach($request['deletedItems'] as $item){
+        $statement->execute(array('id'=> $item['id']));
+        $count += $statement->rowCount();
+    }
+
+
+    return $app->json(array('deleted' => $count));
+
+});
+
 $app->get('/prescription/find', function() use ($app){
 
     $term = $app['request']->get('term');

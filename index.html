@@ -20,12 +20,16 @@
 
     <link rel="stylesheet" href="assets/jquery/css/smoothness/jquery-ui-1.8.18.custom.css">
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="assets/bootstrap/css/jPages.css">
+    <link rel="stylesheet" href="assets/animate.min.css">
+
     <link rel="stylesheet" href="assets/style.css">
     
     <script src="assets/jquery/jquery-1.7.1.min.js"></script>
     <script src="assets/jquery/jquery-ui-1.8.18.custom.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.js"></script>
     <script src="assets/js/typeahed.js"></script>
+    <script src="assets/js/pagination.js"></script>
     <script src="assets/js/dao.js"></script>
     <script src="assets/js/main.js"></script>
     
@@ -46,14 +50,24 @@
 </div>
 
 <div class="no-print controls top">
-    <input id="prescription-search" type="text" placeholder="Serial Number / Patinet Name" class="span5" style="float: left;"> <button id="load-prescription" class="btn btn-primary span2">Load</button>
+    <input id="prescription-search" type="text" placeholder="Serial Number / Patinet Name" class="span5" style="float: left;"> <button id="load-prescription" class="btn btn-primary span2">Load Prescription</button>
+
+
+    <div class="btn-group span2" id="show-data-btn">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            Show Data
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+        </ul>
+    </div>
     <div class="clearfix"></div>
 </div>
 
 <div class="wrapper">
   <header>
     <div class="actions">
-        <button class="btn btn-warning" id="save">Save</button> <button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button> <button class="btn btn-inverse" id="settings">Settings</button> <button class="btn" id="load">Load Prescription</button>
+        <button class="btn btn-warning" id="save">Save</button> <button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button> <button class="btn btn-inverse" id="settings">Settings</button> <button class="btn" id="load" data-toggle="button" >More</button>
 	</div>
 
     <label for="patient-name" class="pull-left">Name: <input id="patient-name" type="text" placeholder="Patient name"></label>
@@ -223,6 +237,26 @@
     <div class="modal-footer">
         <!--<a href="#" class="btn" data-dismiss="modal">No</a>
         <a href="#" class="btn btn-primary ok" data-dismiss="modal">Yes</a>-->
+    </div>
+</div>
+
+
+<div class="modal hide fade" id="data-dialog">
+    <div class="modal-header">
+        <h3>Please wait...</h3>
+    </div>
+    <div id="data-view" class="modal-body">
+        <table>
+            <thead><tr><th>ID</th><th>Content</th></tr></thead>
+            <tbody id="data-container">
+
+            </tbody>
+        </table>
+        <div class="holder"></div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" id="data-delete-commit-btn" class="btn btn-danger animated" data-dismiss="modal">Delete</a>
+        <a href="#" class="btn" data-dismiss="modal">Cancel</a>
     </div>
 </div>
 

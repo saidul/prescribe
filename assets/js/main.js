@@ -15,6 +15,7 @@ var Prescription = {
         Prescription.settingsFeature();
         Prescription.enableSaveFeature();
         Prescription.enableLoadFeature();
+        Prescription.enableShowDataFeature();
 
 
 
@@ -24,7 +25,16 @@ var Prescription = {
         Prescription.chromePrintWorkground();
 
 
-        setTimeout(Prescription.loadAllData, 2000);
+        setTimeout(Prescription.loadAllData, 1000);
+
+        $.ajaxSetup({
+            error: function(){
+                Prescription.utils.updateProgressBar({'msg':'An error occured.'})
+                setTimeout(function(){Prescription.utils.hideProgressBar();}, 2000 );
+                Prescription.utils.createNotification('<strong>Communication Error: </strong> Error occured while communicating with server.',{type:'error', timeout:10000})
+                console.log(arguments);
+            }
+        })
     },
 
     getPrescriptionData: function(){
@@ -120,6 +130,7 @@ var Prescription = {
         // Hiding progress bar
         $( '#data-load-status').hide();
         $( '.controls.top').hide();
+        $('#load').removeClass('active');
         $('#prescription-search').val('')
 
         var d = new Date();
@@ -163,7 +174,8 @@ var Prescription = {
     },
 
     addAdviceFeature: function(){
-        $(DAO).on('dataloaded.advice', function(){
+
+        var rebuildAdviceDialog = function(){
             var $el = $('#advice-selection-list');
             $el.empty();
             if(DAO.data.advice.length > 0) {
@@ -172,7 +184,11 @@ var Prescription = {
                 });
             }
             $el.append('<li>New: <input type="text" id="newAdviceTxt" class="span6"></li>');
-        });
+        }
+
+        $(DAO).on('dataloaded.advice', rebuildAdviceDialog);
+        $(DAO).on('dataremoved.advice', rebuildAdviceDialog);
+
 
         $('#add-advice').on('click', function(){
             $('#advice-selection-dialog :checkbox').removeAttr('checked');
@@ -370,6 +386,113 @@ var Prescription = {
 
     },
 
+    enableShowDataFeature:function(){
+        var items = {
+            cc : 'CC',
+            oe : 'OE',
+            tests: 'Tests',
+            medicine: 'Medicine',
+            comments: 'Misc',
+            duration: 'Duration',
+            condition: 'Condition',
+            advice: 'Advice'
+        }
+
+
+        var contentFiled = {
+            cc : 'name',
+            oe : 'shortName',
+            tests: 'name',
+            medicine: 'name',
+            comments: 'text',
+            duration: 'name',
+            condition: 'name',
+            advice: 'text'
+        }
+
+
+        var $btnContainer = $('#show-data-btn .dropdown-menu');
+        for(k in items){
+            if(items.hasOwnProperty(k)){
+                 $('<li></li>')
+                    .data('type', k)
+                    .append('<a href="#">'+ items[k] +'</a>')
+                     .appendTo($btnContainer)
+                 ;
+            }
+        }
+
+        $(function(){
+            $("div.holder").jPages({
+                containerID : "data-container",
+/*                animation: 'fadeInLeft',*/
+                previous : "←",
+                next : "→",
+                perPage : 10,
+                delay : 20
+            });
+        });
+
+        var $container = $('#data-container');
+
+        $btnContainer.delegate('li', 'click', function(){
+            var type = $(this).data('type');
+
+            $container.empty().data('type', type);
+            for(var i=0;i<DAO.data[type].length; i++) {
+                $('<tr></tr>')
+                    .append('<td>'+DAO.data[type][i].id+'</td><td><button data-dismiss="row" class="close">&times;</button>'+DAO.data[type][i][contentFiled[type]]+'</td>')
+                    .data('obj', DAO.data[type][i])
+                    .data('idx', i)
+                    .appendTo($container)
+                ;
+            }
+
+            $container.data('deletedIndices', []);
+            $('#data-delete-commit-btn').hide();
+
+            $("div.holder").data('jPages').reloadSource($container.children());
+
+           $('#data-dialog').modal('show');
+
+        });
+
+
+
+        //Click on delete
+        $container.delegate('.close', 'click', function(){
+            var $row = $(this).parent().parent()
+                , type = $container.data('type')
+                , idx = $row.data('idx')
+
+            //enque for deletion
+            var deleteIndices = $container.data('deletedIndices');
+            if(! deleteIndices instanceof Array)
+                deleteIndices = [];
+            deleteIndices.push(idx);
+            $container.data('deletedIndices', deleteIndices);
+            var visible = $('#data-delete-commit-btn').is(':visible');
+            $('#data-delete-commit-btn').text('Delete '+ deleteIndices.length +' item' + (deleteIndices.length > 1 ? 's':'')).show();
+            $('#data-delete-commit-btn').cssAnimate( visible ? 'pulse' : 'flip');
+            $row.remove();
+        })
+
+        $('#data-delete-commit-btn').click(function(){
+            var type = $container.data('type'),
+                deleteIndices = $container.data('deletedIndices');
+
+            if(deleteIndices.length == 0) return;
+
+            Prescription.utils.showProgressBar({pct:50, msg: 'Removing ' +deleteIndices.length+ ' Items' })
+            DAO.deleteItemsByIndex(type, deleteIndices, function(data){
+                Prescription.utils.updateProgressBar({pct:100});
+                Prescription.utils.hideProgressBar();
+
+                Prescription.utils.createNotification('<strong>Success!!</strong> Successfully deleted ' + data.deleted + ' Items', {type:'success', timeout:6000});
+            })
+        })
+    },
+
     enableLoadFeature: function(){
         $('#load').click(function(){$('.controls.top').slideToggle()});
 
@@ -392,8 +515,9 @@ var Prescription = {
             var pid = $('#prescription-search').val();
             if(!pid) return;
 
-            Prescription.utils.showProgressBar({msg: 'Loading...'})
+            Prescription.utils.showProgressBar({pct: 50, msg: 'Loading...'})
             DAO.getPrescription(pid, function(pData){
+                Prescription.utils.updateProgressBar({pct:100});
                 Prescription.utils.hideProgressBar();
 
                 if(!pData) {
@@ -694,7 +818,6 @@ var Prescription = {
 
             return childMatch.concat(beginswith, caseSensitive, caseInsensitive);
         },
-
         showProgressBar: function(data){
             if(data) Prescription.utils.updateProgressBar(data);
             $( '#data-load-status' ).effect( 'drop', {direction: 'down', mode: 'show'}, 500);
@@ -717,9 +840,9 @@ var Prescription = {
                 timeout: 0
             }, option);
             var type = 'alert';
-            var str = '<div class="alert alert-'+option.type+'"><button class="close" data-dismiss="notification">&times;</button>'+content+'</div>';
+            var str = '<div class="alert alert-'+option.type+' animated"><button class="close" data-dismiss="notification">&times;</button>'+content+'</div>';
             var $el = $(str);
-            $el.hide().prependTo('#notification-area').slideDown();
+            $el.hide().prependTo('#notification-area').slideDown('fast', function(){$el.cssAnimate('tada')});
 
             if(option.timeout)  {
                 setTimeout(function(){
@@ -748,5 +871,18 @@ $(document).ready(function(){
             json[n['name']] = n['value'];
         });
         return json;
+    };
+})( jQuery );
+
+(function( $ ){
+    $.fn.cssAnimate=function(animation, timeout) {
+        if(!timeout) timeout = 1500
+        return this.each(function(idx, el){
+            var $el = $(el);
+            $el.addClass(animation);
+            setTimeout(function(){
+                $el.removeClass(animation, 1500);
+            });
+        });
     };
 })( jQuery )

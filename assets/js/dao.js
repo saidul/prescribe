@@ -3,6 +3,7 @@ DAO = {
         sync: 'index.php/sync',
         recreate: 'index.php/install/db',
         searchPrescription: 'index.php/prescription/find',
+        remove: 'index.php/removeData/{type}',
         get_cc: 'index.php/getData/cc',
         get_oe: 'index.php/getData/oe',
         get_tests: 'index.php/getData/tests',
@@ -135,6 +136,22 @@ DAO = {
                  if(callback) callback();
             }
         });
+    },
+
+
+    deleteItemsByIndex: function(type, indices, callback){
+        var req = {
+            deletedItems: []
+        }
+
+        for(var i=0;i<indices.length;i++){
+            req.deletedItems = req.deletedItems.concat(DAO.data[type].splice(indices[i], 1));
+        }
+
+        $.post(DAO.endPoints.remove.replace('{type}', type), {request: JSON.stringify(req)}, function(reply){
+            $(DAO).trigger('dataremoved.'+type);
+            callback(reply);
+        })
     },
 
     resetDatabase: function(callback) {

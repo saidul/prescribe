@@ -146,6 +146,13 @@ header #sex {
 
 .ui-autocomplete .ui-menu-item a {line-height: 1.5;}
 
+
+#data-view table{ width: 100%; margin-top: 30px; }
+#data-view td, th{ text-align: left; height:25px; }
+#data-view th { background: #f5f5f5; }
+#data-view th:nth-child(1){ width:10%; }
+#data-view th:nth-child(2){ width:90%; }
+
  /*==========================================================*/
 
 .disable-edit .editor-control {
