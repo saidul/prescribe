@@ -45,9 +45,12 @@
 
         , select: function () {
             var val = this.$menu.find('.active').data('value');
-            this.$element
-                .val(this.updater(val))
-                .change()
+            if(this.shown) {
+                this.$element.val(this.updater(val))
+                this.$element.change();
+            } else {
+                this.$element.trigger('select');
+            }
             return this.hide()
         }
 
@@ -167,6 +170,7 @@
                 .on('blur',     $.proxy(this.blur, this))
                 .on('keypress', $.proxy(this.keypress, this))
                 .on('keyup',    $.proxy(this.keyup, this))
+                .on('change',   $.proxy(this.change, this))
 
             if ($.browser.webkit || $.browser.msie) {
                 this.$element.on('keydown', $.proxy(this.keypress, this))
@@ -176,7 +180,9 @@
                 .on('click', $.proxy(this.click, this))
                 .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
         }
-
+        , change: function(e) {
+            //if(this.shown) {e.stopPropagation();e.preventDefault();}
+        }
         , keyup: function (e) {
             switch(e.keyCode) {
                 case 40: // down arrow
@@ -185,7 +191,7 @@
 
                 case 9: // tab
                 case 13: // enter
-                    if (!this.shown) return
+                    //if (!this.shown) return
                     this.select()
                     break
 

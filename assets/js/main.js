@@ -13,6 +13,8 @@ var Prescription = {
         Prescription.addResetControlFeature();
         Prescription.addAdviceFeature();
         Prescription.settingsFeature();
+        Prescription.enableSaveFeature();
+        Prescription.enableLoadFeature();
 
 
 
@@ -72,13 +74,13 @@ var Prescription = {
 
     addChiefComplain: function(data){
         var str  = '<span class="cc-name">'+data.name+'</span>';
-        if(data.comment) str += ' <span class="cc-comment">'+ data.comment +'</span>';
+        if(data.comment) str += ' <span class="cc-comment">'+ data.comment.text +'</span>';
 
         $('<li class="complain-entry"><button data-dismiss="alert" class="close">&times;</button>'+str+'</li>').appendTo('#chief-complains').data('prescriptionData', data);
     },
 
     addTest: function(data){
-        $('<li><button data-dismiss="alert" class="close">&times;</button>'+data+'</li>').appendTo('#advised-tests').data('prescriptionData', data);
+        $('<li><button data-dismiss="alert" class="close">&times;</button>'+data.name+'</li>').appendTo('#advised-tests').data('prescriptionData', data);
     },
 
     addOE: function(data){
@@ -86,6 +88,7 @@ var Prescription = {
     },
 
     addAdvice: function(data){
+        if(!data.useCount) data.useCount = 0;
         $('<li data-item-id="' + data.id + '"> <button data-dismiss="alert" class="close">&times;</button> '+data.text+'</li>').appendTo('#advice').data('prescriptionData', data);
     },
 
@@ -109,12 +112,18 @@ var Prescription = {
         $('#chief-complains').empty().parent().addClass('no-print');
         $('#onsite-experiment').empty().parent().addClass('no-print');
         $('#treatment').empty().parent().addClass('no-print');
+        $('#advice').empty().parent().addClass('no-print');
 
-        $('#advice').empty();
+        //button reset
+        $('body').removeClass('disable-edit');
+
+        // Hiding progress bar
         $( '#data-load-status').hide();
+        $( '.controls.top').hide();
+        $('#prescription-search').val('')
 
         var d = new Date();
-        $('#prescription-date').html(d.getDay() + '/' + d.getMonth() + '/' + d.getYear());
+        $('#prescription-date').html(d.getDate() + '/' + d.getMonth() + '/' + d.getFullYear());
         $('#patient-name').val('');
         $('#patient-age').val('');
         $('#patient-sex').val('');
@@ -123,7 +132,7 @@ var Prescription = {
     print: function(){
         $('body').addClass('printing');
 
-        var elSelectors = ['#advised-tests', '#chief-complains', '#onsite-experiment', '#treatment'];
+        var elSelectors = ['#advised-tests', '#chief-complains', '#onsite-experiment', '#treatment', '#advice'];
         for(var i=0; i<elSelectors.length; i++) {
             var $el = $(elSelectors[i]);
             if($el.find('li').length)
@@ -142,6 +151,10 @@ var Prescription = {
 
     addResetControlFeature: function(){
         $('#reset').on('click', function(){
+            if($('body').hasClass('disable-edit')){
+                Prescription.reset();
+                return;
+            }
             Prescription.showConfirmDialog("Reset?","Do you really want to reset this prescription?", function(){
                 Prescription.reset();
             });
@@ -173,7 +186,7 @@ var Prescription = {
              if(e.keyCode == 13 ){
                  var value = $(this).val().trim();
                  if(value)
-                    $(this).parent().before('<li data-item-id="new_'+ Date.now() +'"><label><input type="checkbox" checked="checked"><span>'+ value +'</span></label></li>');
+                    $(this).parent().before('<li data-item-id="'+ Date.now() +'"><label><input type="checkbox" checked="checked"><span>'+ value +'</span></label></li>');
                  $(this).val('');
 
              }
@@ -230,7 +243,7 @@ var Prescription = {
     addNewComplainControlFeature: function(){
         var timerId;
 
-        $('#chief-complains-input').change(function(){
+        $('#chief-complains-input').bind('select',function(){
                 var   val = $(this).val()
                     , hasSubquery = val.indexOf('>') > -1
                     , mainQuery = hasSubquery ? val.split('>', 2)[0].trim() : val
@@ -245,7 +258,10 @@ var Prescription = {
                 } else {
                     //clearTimeout(timerId)
                     //timerId = setTimeout(function(){
-                        Prescription.addChiefComplain({name: mainQuery, comment: subQuery});
+                        var ccRec = DAO.getCheifComplainByName(mainQuery, true)
+                        if(subQuery) ccRec.comment = DAO.getCommentByText(subQuery);
+
+                        Prescription.addChiefComplain(ccRec);
                         $(this).val('');
                     //}, 200);
 
@@ -270,13 +286,15 @@ var Prescription = {
             $('#advised-tests-input').typeahead({
                 source: DAO.data.tests,
                 matcher: Prescription.utils.typeAhedMatcher ,
+                highlighter: Prescription.utils.typeAhedHighlighter,
                 sorter: Prescription.utils.typeAhedSorter
 
             });
         });
 
-        $('#advised-tests-input').change(function(){
-                Prescription.addTest($(this).val());
+        $('#advised-tests-input').bind('select',function(){
+                var rec = DAO.getTestsByName($(this).val())
+                Prescription.addTest(rec);
                 $(this).val('');
             });
     },
@@ -286,6 +304,7 @@ var Prescription = {
             $('#medicine-input').typeahead({
                 source: DAO.data.medicine,
                 matcher: Prescription.utils.typeAhedMatcher ,
+                highlighter: Prescription.utils.typeAhedHighlighter,
                 sorter: Prescription.utils.typeAhedSorter
 
             });
@@ -296,6 +315,7 @@ var Prescription = {
             $('#dose-condition').typeahead({
                 source: DAO.data.condition,
                 matcher: Prescription.utils.typeAhedMatcher ,
+                highlighter: Prescription.utils.typeAhedHighlighter,
                 sorter: Prescription.utils.typeAhedSorter
 
             });
@@ -305,6 +325,7 @@ var Prescription = {
             $('#dose-duration').typeahead({
                 source: DAO.data.duration,
                 matcher: Prescription.utils.typeAhedMatcher ,
+                highlighter: Prescription.utils.typeAhedHighlighter,
                 sorter: Prescription.utils.typeAhedSorter
 
             });
@@ -331,18 +352,106 @@ var Prescription = {
             var condition = $('#dose-condition').val().trim() ? DAO.getConditionByName($('#dose-condition').val()) : null;
 
             if(!medicine && !durationObj && !condition) return;
-
-            Prescription.addTreatment({
+            var tData = {
                 medicine: medicine,
                 duration: durationObj,
                 condition: condition,
                 schedule: $('#dose-schedule').val()
 
-            });
+            }
+
+            for(k in tData)
+                if(tData.hasOwnProperty(k) && null == tData[k]) delete tData[k];
+
+            Prescription.addTreatment(tData);
 
             $('#treatment-input-fields input[type=text]').val('');
         })
 
+    },
+
+    enableLoadFeature: function(){
+        $('#load').click(function(){$('.controls.top').slideToggle()});
+
+        $( "#prescription-search" ).autocomplete({
+            source: DAO.endPoints.searchPrescription,
+            minLength: 2,
+            select: function( event, ui ) {
+                //trigger load
+            }
+        })
+        .data( "autocomplete" )._renderItem = function( ul, item ) {
+            return $( "<li></li>" )
+                .addClass('autoCompleteItem')
+                .data( "item.autocomplete", item )
+                .append( "<a>" + item.label + "<br><span class='summery'>Date:"+item.date+" Age: " + item.age + ", Sex: "+item.sex+"</span></a>" )
+                .appendTo( ul );
+        };
+
+        $('#load-prescription').click(function(){
+            var pid = $('#prescription-search').val();
+            if(!pid) return;
+
+            Prescription.utils.showProgressBar({msg: 'Loading...'})
+            DAO.getPrescription(pid, function(pData){
+                Prescription.utils.hideProgressBar();
+
+                if(!pData) {
+                    Prescription.utils.createNotification('<strong>Error</strong> Prescription not found.', {type:'error', timeout:4000});
+                    return;
+                }
+
+                Prescription.reset();
+                $('body').addClass('disable-edit');
+                Prescription.setPrescriptionData(pData);
+                Prescription.utils.createNotification("<strong>Success!</strong> Prescription has been loaded.", {type:'success', timeout: 3000});
+            })
+        })
+    },
+
+    enableSaveFeature: function(){
+        $('#save').click(function(){
+            if(!Prescription.validate()) return;
+
+            if($('body').hasClass('disable-edit')){
+                 Prescription.utils.createNotification('<strong>Save Disabled</strong> You need to reset and create the prescription again.',{type:'warning', timeout: 5000});
+                return;
+            }
+
+            $('body').addClass('disable-edit');
+            var pData = Prescription.getPrescriptionData();
+            Prescription.utils.showProgressBar({msg: 'Saving...'})
+            DAO.savePrescription(pData, function(){
+                Prescription.utils.updateProgressBar({msg: 'Data saved.'});
+                Prescription.utils.hideProgressBar();
+                Prescription.utils.createNotification("<strong>Success!</strong> Prescription has been saved.", {type:'success', timeout: 3000});
+            })
+        })
+    },
+
+    validate:function(){
+        var errors = []
+        , pData = Prescription.getPrescriptionData();
+        if(!pData.name) errors.push('Patient name field is empty.');
+        if(!pData.age) errors.push('Patient age field is empty.');
+        if(!pData.sex) errors.push('Patient sex field is empty.');
+
+        //if(!pData.data)
+
+        var count = 0;
+        for (var k in pData.data) {
+            count = pData.data.hasOwnProperty(k) ? count+1:count;
+        }
+
+        if(count == 0) errors.push("Prescription is empty.");
+
+        if(errors.length){
+            var content = '<strong>Please solve these errors:</strong><ul><li>' + errors.join("</li><li>") + '</li></ul>';
+            Prescription.utils.createNotification(content, {type:'error', timeout: 6000});
+            return false;
+        }
+
+        return true;
     },
 
     initializeModal: function(){
@@ -396,7 +505,7 @@ var Prescription = {
 
         var item,
             timerId,
-            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration'];
+            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration', 'comments'];
         var total = types.length;
         //$('#data-load-status').slideDown('fast');
         Prescription.utils.showProgressBar({msg: 'Synchronizing data...'});
@@ -424,7 +533,7 @@ var Prescription = {
 
         var item,
             timerId,
-            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration'];
+            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration', 'comments'];
         var total = types.length;
         //$('#data-load-status').slideDown('fast');
         Prescription.utils.showProgressBar({msg: 'Loading data...'});
@@ -495,28 +604,37 @@ var Prescription = {
 
     Prescription.utils = {
         typeAhedHighlighter: function (item) {
-            var hasSubquery = this.query.indexOf('>') > -1
+                var hasSubquery = this.query.indexOf('>') > -1
+                , matchFound = false
                 , mainQuery = hasSubquery ? this.query.split('>', 2)[0].trim() : this.query
                 , subQuery = hasSubquery ? this.query.split('>', 2)[1].trim() : ''
                 , query = hasSubquery ? mainQuery + ' > ' + subQuery : this.query
                 , query = query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
-                , matchFound = false
 
-            item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-                return '<strong>' + match + '</strong>'
-                matchFound = true
+
+            item = item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+                matchFound = true;
+                return ('<strong>' + match + '</strong>');
             })
 
-            if(!matchFound) {
-                item = item.replace(new RegExp('(' + mainQuery.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&') + ')', 'ig'), function ($1, match) {
+
+            if(!matchFound && hasSubquery) {
+                item = item.split('>', 2);
+
+
+                mainQuery = mainQuery.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+                item[0] = item[0].trim().replace(new RegExp('(' + mainQuery + ')', 'ig'), function ($1, match) {
                     return '<strong>' + match + '</strong>'
                 })
 
-                if(subQuery) {
-                    item = item.replace(new RegExp('(' + subQuery.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&') + ')', 'ig'), function ($1, match) {
+                if(subQuery && item.length > 1) {
+                    subQuery.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+                    item[1] = item[1].trim().replace(new RegExp('(' + subQuery + ')', 'ig'), function ($1, match) {
                         return '<strong>' + match + '</strong>'
                     })
                 }
+
+                item = item.join(' <strong>&gt;</strong> ');
             }
 
             return item;
@@ -544,23 +662,30 @@ var Prescription = {
                 , hasSubquery = this.query.indexOf('>') > -1
                 , mainQuery = hasSubquery ? this.query.split('>', 2)[0].trim() : this.query
                 , subQuery = hasSubquery ? this.query.split('>', 2)[1].trim() : ''
+                , subItems = []
 
 
+
+            if(hasSubquery) {
+                //Comment filter
+                var subItems = $.grep(DAO.data.comments, function (item) {
+                    var tmp = prepareOption(subQuery, item.text);
+                    return ~tmp.toLowerCase().indexOf(subQuery.toLowerCase())
+                });
+
+                item = {name: mainQuery};
+                $(subItems).each(function (idx, comment){
+                    var tmp = prepareOption(subQuery, comment.text);
+
+                    if(tmp.toLowerCase().indexOf(subQuery.toLowerCase()) > -1)
+                        childMatch.push(item.name + ' > ' + tmp);
+                    else if(!subQuery)
+                        childMatch.push(item.name + ' > ' + tmp);
+                });
+            }
 
             while (item = items.shift()) {
-                if(mainQuery.toLowerCase() == item.name.toLowerCase() && item.comments) {
-                    $(item.comments).each(function (idx, comment){
-                        var tmp = prepareOption(subQuery, comment.comment);
-
-                        if(tmp.toLowerCase().indexOf(subQuery.toLowerCase()) > -1)
-                            childMatch.push(item.name + ' > ' + tmp);
-                        else if(!subQuery)
-                            childMatch.push(item.name + ' > ' + tmp);
-                    });
-                }
-
                 var tmp = prepareOption(this.query, item.name);
-
                 if (!tmp.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(tmp)
                 else if (!item.name.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item.name)
                 else if (~item.name.indexOf(this.query)) caseSensitive.push(item.name)
@@ -584,8 +709,29 @@ var Prescription = {
                 $('#data-load-status .bar').css('width', data.pct+'%');
             if(data.msg)
                 $('#data-load-status .progress-msg').html(data.msg);
+        },
+
+        createNotification: function(content, option){
+            option = $.extend({
+                type: 'warning',
+                timeout: 0
+            }, option);
+            var type = 'alert';
+            var str = '<div class="alert alert-'+option.type+'"><button class="close" data-dismiss="notification">&times;</button>'+content+'</div>';
+            var $el = $(str);
+            $el.hide().prependTo('#notification-area').slideDown();
+
+            if(option.timeout)  {
+                setTimeout(function(){
+                    $el.find('[data-dismiss="notification"]').click();
+                },option.timeout);
+            }
+
         }
     }
+
+    //Notification hiding
+    $('[data-dismiss="notification"]').live('click', function(){var $el = $(this).parent(); $el.slideUp('fast', function(){$el.remove()})});
 
 window.Prescription = Prescription;
 

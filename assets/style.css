@@ -8,6 +8,14 @@
   box-shadow: 0 0 10px #C0C0C0;
 }
 
+.controls.top{
+    width: 200mm;
+    padding: 5mm 5mm;
+    margin: 0 auto;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 0 10px #C0C0C0;
+}
+
 .wrapper .actions {
     margin-bottom: 10px;
 }
@@ -117,6 +125,33 @@ header #sex {
 .treatment-details .condition { }
 .treatment-details .schedule {width: 20mm; text-align: center; vertical-align: middle;}
 
+#notification-area{
+    position: fixed;
+    bottom: 0;
+    width: 70mm;
+    right: 0mm;
+    box-shadow: 0 0 14px black;
+    background: white;
+}
+
+#notification-area .alert{
+    margin-bottom: 2px;
+    border-radius: 0;
+}
+
+.summery {
+    font-size: 11px;
+    color: #3359A8;
+}
+
+.ui-autocomplete .ui-menu-item a {line-height: 1.5;}
+
+ /*==========================================================*/
+
+.disable-edit .editor-control {
+    display: none;
+}
+
 /*========================================================*/
 /** Printing
 *   class printing will be added to body at the time of printing. use this class to decorate report
@@ -135,8 +170,8 @@ header #sex {
     display: none;
 }
 
-.printing .no-print{
-    display: none;
+body.printing .no-print{
+    display: none !important;
 }
 
 .printing .no-print-keep-space {

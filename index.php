@@ -14,8 +14,8 @@ $app['insert-map'] = array(
     'duration'           => 'INSERT INTO "main"."duration" ( "id" , "name" ) values (:id, :name);',
     'condition'          => 'INSERT INTO "main"."condition" ( "id" , "name" ) values (:id, :name);',
     'advice'             => 'INSERT INTO "main"."advice" ( "id" , "text" , "useCount" ) values (:id, :text, :useCount);',
-    'comments'           => 'INSERT INTO "main"."comments" ( "id" , "comment" , "cType" , "fKey" ) values (:id, :comment, :cType, :fKey);',
-    'prescription'       => 'INSERT INTO "main"."prescription" ( "id" , "name" , "age" , "date" , "parent" , "data" ) values (:id, :name, :age, :date, :parent, :data);',
+    'comments'           => 'INSERT INTO "main"."comments" ( "id" , "text" ) values (:id, :text );',
+    'prescription'       => 'INSERT INTO "main"."prescription" ( "id" , "name" , "age" , "sex", "date" , "parent" , "data" ) values (:id, :name, :age, :sex , :date, :parent, :data);',
 );
 
 $app['table-map'] = array(
@@ -56,8 +56,8 @@ $app->get('/install/db', function() use ($app){
        'condition'          => 'CREATE TABLE "main"."condition" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT NOT NULL );',
        'duration'           => 'CREATE TABLE "main"."duration" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT NOT NULL );',
        'advice'             => 'CREATE TABLE "main"."advice" ( "id" INTEGER PRIMARY KEY NOT NULL, "text" TEXT, "useCount" INTEGER NOT NULL DEFAULT (0) );',
-       'comments'           => 'CREATE TABLE "main"."comments" ( "id" INTEGER NOT NULL, "comment" TEXT NOT NULL, "cType" TEXT NOT NULL, "fKey" INTEGER NOT NULL );',
-       'prescription'       => 'CREATE TABLE "main"."prescription" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT, "age" INTEGER, "date" INTEGER, "parent" INTEGER, "data" TEXT );',
+       'comments'           => 'CREATE TABLE "main"."comments" ( "id" INTEGER NOT NULL, "text" TEXT NOT NULL );',
+       'prescription'       => 'CREATE TABLE "main"."prescription" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT, "age" INTEGER, "sex" TEXT, "date" INTEGER, "parent" INTEGER, "data" TEXT );',
    );
 
     echo "<pre>";
@@ -80,42 +80,9 @@ $app->post('/sync', function() use ($app){
     $request = json_decode($app['request']->request->get('request'),true);
 
 
+    $newInserts = insertBatchData($request['data'], $app);
 
-     $loadComments = function($cType, $fKey, $comments) use ($app) {
-            foreach($comments as $comment) {
-                $id = is_exist('comments', $comment, $app);
-                if(false === $id) {
-                    $stmt = $app['dbh']->prepare($app['insert-map']['comments']);
-                    $stmt->execute(array_merge($comment, array('cType' => $cType, 'fKey' => $fKey)));
-                }
-            }
-     };
-
-
-
-    //$recordExist
-
-     foreach($request['data'] as $tabKey => $rows) {
-        if(!isset($app['table-map'][$tabKey])) continue; //Skip not mapped tables
-
-         $tableName = $app['table-map'][$tabKey];
-         $stmt = $app['dbh']->prepare($app['insert-map'][$tableName]);
-         foreach($rows as $row)
-         {
-             //TODO: if exist then skip else insert
-             $comments = isset($row['comments']) ? $row['comments'] : array();
-             unset($row['comments']);
-             $id = is_exist($tableName, $row, $app);
-             if(false === $id){
-               $stmt->execute($row);
-             } else {
-                 $row['id'] = $id;
-             }
-
-
-             $loadComments($tableName, $row['id'], $comments);
-         }
-     }
+    return $app->json(array('newData'=>$newInserts));
 });
 
 
@@ -130,10 +97,6 @@ $app->get('/getData/{type}', function($type) use ($app){
     $statement->setFetchMode(PDO::FETCH_ASSOC);
     $data = array();
     while($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-        $comments = getComments($tableName, $row['id'], $app);
-        if(count($comments))
-            $row['comments'] = $comments;
-
         $data[] = $row;
     }
 
@@ -141,20 +104,119 @@ $app->get('/getData/{type}', function($type) use ($app){
 
 });
 
+$app->get('/prescription/find', function() use ($app){
+
+    $term = $app['request']->get('term');
+
+    $sql = "SELECT id, id value, name label, age, sex, date from prescription WHERE id LIKE :idTerm OR name LIKE :term LIMIT 0,10;";
+
+
+    /** @var $stmt PDOStatement */
+    $stmt = $app['dbh']->prepare($sql);
+    $stmt->bindValue(':idTerm', "{$term}%");
+    $stmt->bindValue(':term', "%{$term}%");
+    $stmt->execute();
+    $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    $data = array();
+    while($row = $stmt->fetch()) {
+        $data[] = $row;
+    }
+
+    return count($data) ? $app->json($data) : "[]";
+});
+
+$app->post('/savePrescription', function() use ($app){
+    $request = json_decode($app['request']->request->get('request'),true);
+    $stmt = $app['dbh']->prepare($app['insert-map']['prescription']);
+    if(!isset($request['id']))
+          $request['id'] = time();
+
+    $newData = insertBatchData($request['data'], $app);
+
+    $request['data'] = serialize($request['data']);
+    $stmt->execute($request);
+
+    return $app->json(array('newData'=>$newData));
+});
+
+$app->get('/getPrescription/{id}', function($id) use ($app){
+    $prescription = getPrescription($id, $app);
+    return $app->json($prescription);
+});
+
 
 $app->run();
 
+function insertBatchData($data, $app){
+    $newInserts = array();
+    $preparedStatementCache = array();
 
-function getComments($cType, $fKey, $app){
-    $sql = "SELECT id,comment FROM comments WHERE cType = :cType AND fKey = :fKey";
+
+    foreach($data as $tabKey => $rows) {
+        if($tabKey == 'treatments') {
+            //treat specially
+            foreach($rows as $tRecord){
+                foreach($tRecord as $tabKey=>$row)
+                    insertRow($tabKey, $row, $preparedStatementCache, $newInserts);
+            }
+            continue;
+        }
+
+        if(!isset($app['table-map'][$tabKey])) continue; //Skip not mapped tables
+        foreach($rows as $row)
+            insertRow($tabKey, $row, $preparedStatementCache, $newInserts);
+    }
+
+    return $newInserts;
+}
+
+function insertRow($tabKey, $row, &$preparedStatementCache = array(), &$newInserts = array()) {
+    global $app;
+    if(!isset($app['table-map'][$tabKey])) return; //Skip not mapped tables
+    if(!is_array($row)) return; // return for invalid data
+
+    $tableName = $app['table-map'][$tabKey];
+
+    if( !isset($preparedStatementCache[$tableName])) {
+        $preparedStatementCache[$tableName] = $app['dbh']->prepare($app['insert-map'][$tableName]);
+    }
+    /** @var $stmt PDOStatement */
+    $stmt = $preparedStatementCache[$tableName];
+
+    $id = is_exist($tableName, $row, $app);
+    if(false === $id){
+        //save comment
+        if(isset($row['comment'])){
+            insertRow('comments', $row['comment'], $preparedStatementCache, $newInserts);
+        }
+
+        unset($row['comment']);
+        unset($row['dirty']);
+
+        //Onsite Exp
+        unset($row['value']);
+
+        if(!isset($row['id'])) $row['id'] = time();
+        $stmt->execute($row);
+        $newInserts[$tabKey][] = $row;
+    } else {
+        $row['id'] = $id;
+    }
+}
+
+function getPrescription($id, $app){
+    $sql = "SELECT * FROM prescription WHERE id=:id";
     /** @var $stmt PDOStatement */
     $stmt = $app['dbh']->prepare($sql);
-    $stmt->bindValue(':cType', $cType);
-    $stmt->bindValue(':fKey', $fKey);
-
+    $stmt->bindValue(':id', $id);
     $stmt->execute();
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if($prescription = $stmt->fetch(PDO::FETCH_ASSOC)){
+        $prescription['data'] = unserialize($prescription['data']);
+        return $prescription;
+    }
+
+    return null;
 }
 
 
@@ -168,23 +230,15 @@ function is_exist($table, $row, $app) {
         'medicine'           => 'name',
         'condition'          => 'name',
         'duration'           => 'name',
-        'comments'           => 'comment'
+        'comments'           => 'text'
     );
 
-    if($table == 'comments') {
-        $sql = "SELECT id, COUNT(id) as totalMatch FROM $table WHERE comment LIKE :comment AND cType = :cType AND fKey = :fKey";
-        /** @var $stmt PDOStatement */
-        $stmt = $app['dbh']->prepare($sql);
-        $stmt->bindValue(':comment', $row['comment']);
-        $stmt->bindValue(':cType', $row['cType']);
-        $stmt->bindValue(':fKey', $row['fKey']);
-    } else {
-        $colName = $searchField[$table];
-        $sql = "SELECT id, COUNT($colName) as totalMatch FROM $table WHERE $colName LIKE :$colName";
-        /** @var $stmt PDOStatement */
-        $stmt = $app['dbh']->prepare($sql);
-        $stmt->bindValue(':'.$colName, $row[$colName]);
-    }
+    $colName = $searchField[$table];
+    $sql = "SELECT id, COUNT($colName) as totalMatch FROM $table WHERE $colName LIKE :$colName";
+    /** @var $stmt PDOStatement */
+    $stmt = $app['dbh']->prepare($sql);
+    $stmt->bindValue(':'.$colName, $row[$colName]);
+
     $stmt->execute();
 
     $data = $stmt->fetch();

@@ -2,13 +2,18 @@ DAO = {
     endPoints: {
         sync: 'index.php/sync',
         recreate: 'index.php/install/db',
+        searchPrescription: 'index.php/prescription/find',
         get_cc: 'index.php/getData/cc',
         get_oe: 'index.php/getData/oe',
         get_tests: 'index.php/getData/tests',
         get_advice: 'index.php/getData/advice',
         get_condition: 'index.php/getData/condition',
         get_duration: 'index.php/getData/duration',
-        get_medicine: 'index.php/getData/medicine'
+        get_medicine: 'index.php/getData/medicine',
+        get_comments: 'index.php/getData/comments',
+
+        getPrescription: 'index.php/getPrescription/{id}',
+        savePrescription: 'index.php/savePrescription'
 
 
     },
@@ -20,17 +25,34 @@ DAO = {
         advice: [],
         medicine: [],
         condition: [],
-        duration: []
+        duration: [],
+        comments: []
 
     },
     generateId: function(){
         return Date.now();
     },
 
-    getCheifComplainByName: function(name){
+    getCheifComplainByName: function(name, create){
         for(var i=0;i<DAO.data.cc.length;i++) {
             if(DAO.data.cc[i].name == name) return DAO.data.cc[i];
         }
+
+        if(create){
+            var rec = {id: DAO.generateId(), name: name, dirty: true };
+            //DAO.data.cc.push(rec);
+            return rec;
+        }
+    },
+
+    getCommentByText: function(text){
+        for(var i=0;i<DAO.data.comments.length;i++) {
+            if(DAO.data.comments[i].text == text) return DAO.data.comments[i];
+        }
+
+        var rec = {id: DAO.generateId(), text: text, dirty: true };
+        //DAO.data.medicine.push(rec);
+        return rec;
     },
 
     getOnsiteExamenationByShortName: function(shortName) {
@@ -45,7 +67,7 @@ DAO = {
         }
 
         var rec = {id: DAO.generateId(), name: name, dirty: true };
-        DAO.data.medicine.push(rec);
+        //DAO.data.medicine.push(rec);
         return rec;
     },
 
@@ -55,7 +77,7 @@ DAO = {
         }
 
         var rec = {id: DAO.generateId(), name: name, dirty: true };
-        DAO.data.duration.push(rec);
+        //DAO.data.duration.push(rec);
         return rec;
     },
 
@@ -65,8 +87,42 @@ DAO = {
         }
 
         var rec = {id: DAO.generateId(), name: name, dirty: true };
-        DAO.data.condition.push(rec);
+        //DAO.data.condition.push(rec);
         return rec;
+    },
+
+    getTestsByName: function (name) {
+        for(var i=0;i<DAO.data.condition.length;i++) {
+            if(DAO.data.tests[i].name == name) return DAO.data.tests[i];
+        }
+
+        var rec = {id: DAO.generateId(), name: name, dirty: true };
+        //DAO.data.tests.push(rec);
+        return rec;
+    },
+
+    getPrescription: function(id, callback){
+        $.getJSON(DAO.endPoints.getPrescription.replace('{id}', id), callback);
+    },
+
+    savePrescription: function(pData, callback){
+        $.post(DAO.endPoints.savePrescription, {request: JSON.stringify(pData)}, function(pData){
+
+            //Adding newly incoming data
+            if(pData && pData.newData) {
+                var count = 0;
+                for (var k in pData.newData) {
+                    if(!pData.newData.hasOwnProperty(k)) continue;
+                    if(DAO.data[k])
+                    for(var i=0; i < pData.newData[k].length; i++){
+                        DAO.data[k].push(pData.newData[k][i]);
+                    }
+                    $(DAO).trigger('dataloaded.'+k);
+                }
+            }
+
+            callback(arguments);
+        })
     },
 
     loadData: function(type, callback){
@@ -74,7 +130,7 @@ DAO = {
             url: DAO.endPoints['get_'+type],
             dataType: 'json',
             success: function(data, txtStatus){
-                 DAO.data[type] = data;
+                 DAO.data[type] = data instanceof Array ? data : [];
                  $(DAO).trigger('dataloaded.'+type);
                  if(callback) callback();
             }
@@ -108,13 +164,7 @@ DAO = {
 
     loadDummyData: function() {
        DAO.data.cc = [
-           {id: 1, name: 'Fever', comments: [
-               {id: 1, comment: '{num} days' },
-               {id: 9, comment: '{num} days {num} times' },
-               {id: 2, comment: 'night' },
-               {id: 3, comment: 'Day and night' },
-               {id: 4, comment: '{num} times' }
-           ]},
+           {id: 1, name: 'Fever'},
            {id: 2, name: 'Abdominal Pain'},
            {id: 3, name: 'Headache'},
            {id: 4, name: 'Diarrhoea'},
@@ -122,6 +172,15 @@ DAO = {
            {id: 6, name: 'Vomitting'}
        ];
         $(DAO).trigger('dataloaded.cc');
+
+        DAO.data.comments = [
+            {id: 1, text: '{num} days' },
+            {id: 9, text: '{num} days {num} times' },
+            {id: 2, text: 'night' },
+            {id: 3, text: 'Day and night' },
+            {id: 4, text: '{num} times' }
+        ];
+        $(DAO).trigger('dataloaded.comments');
 
        DAO.data.oe = [
            {id: 1, name: 'Pulse', shortName: 'P', unit: '' },

@@ -18,6 +18,7 @@
 
     <meta name="viewport" content="width=device-width">
 
+    <link rel="stylesheet" href="assets/jquery/css/smoothness/jquery-ui-1.8.18.custom.css">
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="assets/style.css">
     
@@ -44,10 +45,15 @@
   </div>
 </div>
 
+<div class="no-print controls top">
+    <input id="prescription-search" type="text" placeholder="Serial Number / Patinet Name" class="span5" style="float: left;"> <button id="load-prescription" class="btn btn-primary span2">Load</button>
+    <div class="clearfix"></div>
+</div>
+
 <div class="wrapper">
   <header>
     <div class="actions">
-        <button class="btn btn-warning" id="save">Save</button> <button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button> <button class="btn btn-inverse" id="settings">Settings</button>
+        <button class="btn btn-warning" id="save">Save</button> <button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button> <button class="btn btn-inverse" id="settings">Settings</button> <button class="btn" id="load">Load Prescription</button>
 	</div>
 
     <label for="patient-name" class="pull-left">Name: <input id="patient-name" type="text" placeholder="Patient name"></label>
@@ -64,14 +70,14 @@
           <div id="chief-complains-block">
               <h4>C/C:</h4>
               <ul id="chief-complains"  data-type="cc"></ul>
-              <input id="chief-complains-input" class="typeahead no-print" placeholder="Complaints..." type="text">
+              <input id="chief-complains-input" class="typeahead no-print editor-control" placeholder="Complaints..." type="text">
           </div>
 
           <div id="onsite-experiment-block">
               <h4>O/E:</h4>
               <ul id="onsite-experiment"  data-type="oe"></ul>
 
-              <div id="btn-add-oe" class="btn-group">
+              <div id="btn-add-oe" class="btn-group editor-control">
                   <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                       Add O/E
                       <span class="caret"></span>
@@ -86,7 +92,7 @@
           <div id="advised-tests-block">
               <h4>Adv:</h4>
               <ul id="advised-tests"  data-type="tests"></ul>
-              <input id="advised-tests-input" class="typeahead no-print" placeholder="Tests..." type="text">
+              <input id="advised-tests-input" class="typeahead no-print  editor-control" placeholder="Tests..." type="text">
           </div>
       </div>
       <div class="right-bar">
@@ -97,7 +103,7 @@
 
 
 
-          <ul id="treatment-input-fields" class="no-print">
+          <ul id="treatment-input-fields" class="no-print  editor-control">
             <li> <input id="medicine-input" class="typeahead no-print span6" placeholder="Medicine name" type="text"> </li>
             <li>
                 <input id="dose-schedule" class="input-small typeahead no-print" placeholder="Schedule" type="text">
@@ -111,7 +117,7 @@
           <div id="advice-block">
               উপদেশঃ
               <ul id="advice"  data-type="advice"></ul>
-              <input type="button"  id="add-advice" class="btn" value="Add Advices">
+              <input type="button"  id="add-advice" class="btn  editor-control" value="Add Advices">
           </div>
       </div>
   </div>
@@ -226,5 +232,7 @@
         <div class="bar" style="width: 0%;"></div>
     </div>
 </div>
+
+<div id="notification-area" class="no-print"></div>
 </body>
 </html>
