@@ -70,13 +70,17 @@
         <button class="btn btn-warning" id="save">Save</button> <button class="btn btn-primary" id="print">Print</button> <button class="btn btn-danger" id="reset">Reset</button> <button class="btn btn-inverse" id="settings">Settings</button> <button class="btn" id="load" data-toggle="button" >More</button>
 	</div>
 
-    <label for="patient-name" class="pull-left">Name: <input id="patient-name" type="text" placeholder="Patient name"></label>
-    <label for="patient-age" class="pull-left">Age: <input type="text" id="patient-age" class="span1"></label>
-    <label for="patient-sex" class="pull-left">Sex: <input type="text" id="patient-sex" class="span1"  data-provide="typeahead" data-source='["Male","Female"]'></label>
+      <div class="header-spacer">
+          <span id="prescription-id" style="margin-right: 15mm; font-size:11px;float: right">XCVF</span>
+          <div class="clearfix"></div>
+      </div>
 
-    <label class="pull-left">
-        Date: <span id="prescription-date"></span>
-    </label>
+    <label for="patient-name" class="pull-left"><span class="no-print">Name: </span><input id="patient-name" type="text" placeholder="Patient name"></label>
+    <label for="patient-age" class="pull-left"><span class="no-print">Age: </span><input type="text" id="patient-age" class="span1"></label>
+    <label for="patient-sex" class="pull-left"><span class="no-print">Sex: </span><input type="text" id="patient-sex" class="span1"  data-provide="typeahead" data-source='["Male","Female"]'></label>
+    <label for="prescription-date" class="pull-left"><span class="no-print">Date: </span><input type="text" id="prescription-date"></label>
+
+      <div class="clearfix"></div>
   </header>
 
   <div class="container">

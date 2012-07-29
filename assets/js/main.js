@@ -42,7 +42,8 @@ var Prescription = {
             name: $('#patient-name').val(),
             age:  $('#patient-age').val(),
             sex:  $('#patient-sex').val(),
-            date: $('#prescription-date').text(),
+            date: $('#prescription-date').val(),
+            id : $('#prescription-id').text(),
             data: { }
         }
 
@@ -64,7 +65,8 @@ var Prescription = {
         $('#patient-name').val(pData.name);
         $('#patient-age').val(pData.age);
         $('#patient-sex').val(pData.sex);
-        $('#prescription-date').text(pData.date);
+        $('#prescription-date').val(pData.date);
+        $('#prescription-id').text(pData.id);
 
 
         var applyData = function(d, callable) {
@@ -84,7 +86,7 @@ var Prescription = {
 
     addChiefComplain: function(data){
         var str  = '<span class="cc-name">'+data.name+'</span>';
-        if(data.comment) str += ' <span class="cc-comment">'+ data.comment.text +'</span>';
+        if(data.comment) str += ' - <span class="cc-comment">'+ data.comment.text +'</span>';
 
         $('<li class="complain-entry"><button data-dismiss="alert" class="close">&times;</button>'+str+'</li>').appendTo('#chief-complains').data('prescriptionData', data);
     },
@@ -134,7 +136,8 @@ var Prescription = {
         $('#prescription-search').val('')
 
         var d = new Date();
-        $('#prescription-date').html(d.getDate() + '/' + d.getMonth() + '/' + d.getFullYear());
+        $('#prescription-date').val(d.getDate() + '/' + d.getMonth() + '/' + d.getFullYear());
+        $('#prescription-id').text(Date.now().toString(26).toUpperCase())
         $('#patient-name').val('');
         $('#patient-age').val('');
         $('#patient-sex').val('');
@@ -348,19 +351,40 @@ var Prescription = {
         });
 
 
+
+        $(DAO).on('dataloaded.schedule', function(){
+            var $el = $('#dose-schedule');
+            $el.typeahead({
+                source: DAO.data.schedule,
+                matcher: Prescription.utils.typeAhedMatcher,
+                highlighter: Prescription.utils.typeAhedHighlighter,
+                sorter: Prescription.utils.typeAhedSorter
+
+            });
+        });
+
+/*
+
         $('#dose-schedule').typeahead({
             sorter: function(items){
-                var numbers = this.query.match(/(\d+)/g)
+                var numbers = this.query.match(/([\d\u09e6-\u09ef]+)/g)
+                  , tmp
                   , items
 
                 if(!numbers) numbers = [];
                 while(numbers.length < 3)
                     numbers.push(0);
 
-               return [numbers.join(' + ')];
+                tmp = numbers.join(' + ');
+
+                if(tmp.toLowerCase().indexOf(this.query) > -1)
+                    items.push();
+
+               return items;
             }
         });
 
+*/
 
         $('#add-treatment').click(function(){
             var medicine = $('#medicine-input').val().trim() ? DAO.getMedicineByName($('#medicine-input').val()) : null;
@@ -395,7 +419,8 @@ var Prescription = {
             comments: 'Misc',
             duration: 'Duration',
             condition: 'Condition',
-            advice: 'Advice'
+            advice: 'Advice',
+            schedule: 'Schedule'
         }
 
 
@@ -407,7 +432,8 @@ var Prescription = {
             comments: 'text',
             duration: 'name',
             condition: 'name',
-            advice: 'text'
+            advice: 'text',
+            schedule: 'name'
         }
 
 
@@ -633,7 +659,7 @@ var Prescription = {
 
         var item,
             timerId,
-            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration', 'comments'];
+            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration', 'comments', 'schedule'];
         var total = types.length;
         //$('#data-load-status').slideDown('fast');
         Prescription.utils.showProgressBar({msg: 'Synchronizing data...'});
@@ -661,7 +687,7 @@ var Prescription = {
 
         var item,
             timerId,
-            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration', 'comments'];
+            types = ['cc', 'oe', 'tests', 'advice', 'medicine', 'condition', 'duration', 'comments', 'schedule'];
         var total = types.length;
         //$('#data-load-status').slideDown('fast');
         Prescription.utils.showProgressBar({msg: 'Loading data...'});
@@ -720,7 +746,7 @@ var Prescription = {
 
 
     function prepareOption(query, item){
-        var numbers = query.match(/(\d+)/g);
+        var numbers = query.match(/([\d\u09e6-\u09ef]+)/g);
         var i = 0;
         var tmp = item.replace(/({num})/g, function(s, key){
             return numbers && i < numbers.length ? numbers[i++] : s;

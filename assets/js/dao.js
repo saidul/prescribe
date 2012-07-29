@@ -12,6 +12,7 @@ DAO = {
         get_duration: 'index.php/getData/duration',
         get_medicine: 'index.php/getData/medicine',
         get_comments: 'index.php/getData/comments',
+        get_schedule: 'index.php/getData/schedule',
 
         getPrescription: 'index.php/getPrescription/{id}',
         savePrescription: 'index.php/savePrescription'
@@ -75,6 +76,16 @@ DAO = {
     getDurationByName: function (name) {
         for(var i=0;i<DAO.data.duration.length;i++) {
             if(DAO.data.duration[i].name == name) return DAO.data.duration[i];
+        }
+
+        var rec = {id: DAO.generateId(), name: name, dirty: true };
+        //DAO.data.duration.push(rec);
+        return rec;
+    },
+
+    getScheduleByName: function (name) {
+        for(var i=0;i<DAO.data.schedule.length;i++) {
+            if(DAO.data.schedule[i].name == name) return DAO.data.schedule[i];
         }
 
         var rec = {id: DAO.generateId(), name: name, dirty: true };
@@ -185,7 +196,6 @@ DAO = {
            {id: 2, name: 'Abdominal Pain'},
            {id: 3, name: 'Headache'},
            {id: 4, name: 'Diarrhoea'},
-           {id: 5, name: 'Blind while sleeping'},
            {id: 6, name: 'Vomitting'}
        ];
         $(DAO).trigger('dataloaded.cc');
@@ -193,8 +203,6 @@ DAO = {
         DAO.data.comments = [
             {id: 1, text: '{num} days' },
             {id: 9, text: '{num} days {num} times' },
-            {id: 2, text: 'night' },
-            {id: 3, text: 'Day and night' },
             {id: 4, text: '{num} times' }
         ];
         $(DAO).trigger('dataloaded.comments');
@@ -209,29 +217,18 @@ DAO = {
         $(DAO).trigger('dataloaded.oe');
 
        DAO.data.medicine = [
-           {id: 1, name: 'Tab. Napa 500'},
-           {id: 2, name: 'Tab. Napa Extra 500'},
-           {id: 3, name: 'Cap. Xeldrin 20'},
-           {id: 4, name: 'Tab. Paracitamol 96'},
-           {id: 5, name: 'Oin. Dermasol N'},
-           {id: 6, name: 'Tab. Guji Muji Mush 500'},
-           {id: 7, name: 'Tab. Daomin 300'},
-           {id: 8, name: 'Tab. Diamicron MR 50'},
-           {id: 9, name: 'Tab. Kow Mow u 00'}
+           {id: 1, name: 'Tab. Napa 500'}
        ];
         $(DAO).trigger('dataloaded.medicine');
 
        DAO.data.condition = [
-           {id: 1, name: 'Khaoar age'},
-           {id: 2, name: 'Khaoar pore'},
-           {id: 3, name: 'Before dinner'},
-           {id: 4, name: 'After dinner'}
+           {id: 1, name: 'Khaoar age'}
        ];
         $(DAO).trigger('dataloaded.condition');
 
        DAO.data.duration = [
-           {id: 1, name: '{num} day'},
-           {id: 2, name: '{num} month'},
+           {id: 1, name: '{num} দিন'},
+           {id: 2, name: '{num} মাস'},
            {id: 3, name: '{num} week'},
            {id: 4, name: '{num} hour'}
        ];
@@ -438,10 +435,15 @@ DAO = {
         DAO.data.advice = [
             {id: 1, useCount:4, text: 'বেশী বেশী তরল খাবার খাবেন।' },
             {id: 2, useCount:5, text: 'জ্বর থাকলে কুসুম গরম পানি দিয়ে শরীর মুছে দিবেন।' },
-            {id: 3, useCount:2, text: 'মুড়ি থাকলে মুড়ি খাবেন।' },
-            {id: 4, useCount:7, text: 'সকাল বেলা জুতা পড়ে ঘুমুবেন।' },
             {id: 5, useCount:1, text: 'পাঁচ ওয়াক্ত নামাজ পড়বেন।' }
         ];
         $(DAO).trigger('dataloaded.advice');
+
+        DAO.data.schedule = [
+            {id: 1, name: '{num} + {num} + {num}'},
+            {id: 2, name: '{num} চামচ x {num} বার'},
+            {id: 3, name: '{num} ফোটা x {num} নাকে দিনে {num} বার'}
+        ]
+        $(DAO).trigger('dataloaded.schedule');
     }
 }

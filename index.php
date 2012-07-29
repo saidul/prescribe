@@ -16,6 +16,7 @@ $app['insert-map'] = array(
     'advice'             => 'INSERT INTO "main"."advice" ( "id" , "text" , "useCount" ) values (:id, :text, :useCount);',
     'comments'           => 'INSERT INTO "main"."comments" ( "id" , "text" ) values (:id, :text );',
     'prescription'       => 'INSERT INTO "main"."prescription" ( "id" , "name" , "age" , "sex", "date" , "parent" , "data" ) values (:id, :name, :age, :sex , :date, :parent, :data);',
+    'schedule'           => 'INSERT INTO "main"."schedule" ( "id" , "name" ) values (:id, :name);',
 );
 
 $app['table-map'] = array(
@@ -27,6 +28,7 @@ $app['table-map'] = array(
     'medicine'  => 'medicine',
     'condition' => 'condition',
     'duration'  => 'duration',
+    'schedule'  => 'schedule',
 );
 
 
@@ -57,7 +59,8 @@ $app->get('/install/db', function() use ($app){
        'duration'           => 'CREATE TABLE "main"."duration" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT NOT NULL );',
        'advice'             => 'CREATE TABLE "main"."advice" ( "id" INTEGER PRIMARY KEY NOT NULL, "text" TEXT, "useCount" INTEGER NOT NULL DEFAULT (0) );',
        'comments'           => 'CREATE TABLE "main"."comments" ( "id" INTEGER NOT NULL, "text" TEXT NOT NULL );',
-       'prescription'       => 'CREATE TABLE "main"."prescription" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT, "age" INTEGER, "sex" TEXT, "date" INTEGER, "parent" INTEGER, "data" TEXT );',
+       'prescription'       => 'CREATE TABLE "main"."prescription" ( "id" TEXT PRIMARY KEY NOT NULL, "name" TEXT, "age" INTEGER, "sex" TEXT, "date" INTEGER, "parent" INTEGER, "data" TEXT );',
+       'schedule'           => 'CREATE TABLE "main"."schedule" ( "id" INTEGER PRIMARY KEY NOT NULL, "name" TEXT NOT NULL );',
    );
 
     echo "<pre>";
@@ -251,6 +254,7 @@ function is_exist($table, $row, $app) {
         'medicine'           => 'name',
         'condition'          => 'name',
         'duration'           => 'name',
+        'schedule'           => 'name',
         'comments'           => 'text'
     );
 

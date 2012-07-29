@@ -1,7 +1,7 @@
 .wrapper{
-  width: 200mm;
-  padding: 5mm 5mm;
-  height: 287mm;
+  width: 190mm;
+  padding: 5mm 10mm;
+  height: 265mm;
   margin: 10mm auto;
   background-color: white;
   border-radius: 10px;
@@ -25,28 +25,35 @@
     clear: both;
 }
 
+
 header input {
     display: inline-block;
     margin-right: 25px;
 }
-
+#prescription-date {
+    width: 100px;
+}
 header #sex {
     margin-right: 25px;
 }
 
 .left-bar {
-    width: 30%;
+    width: 60mm;
     float: left;
-    padding-right: 1.5%;
+    padding-right: 5mm;
     border-right: 1px solid silver;
     padding-top: 10px;
 }
 
 .right-bar {
-    width: 66%;
+    width: 120mm;
     float: left;
-	padding-left: 2%;
+	padding-left: 5mm;
     padding-top: 10px;
+}
+
+.cc-comment{
+    font-style: italic;
 }
 
 .right-bar ul {
@@ -70,9 +77,14 @@ header #sex {
     padding: 10px;
 }
 
+#treatment li{
+    padding-left: 3mm;
+}
+
 #advice-block {
     padding-top: 25px;
     font-size: 20px;
+    padding-left: 3mm;
 }
 
 #advice-selection-list li {
@@ -121,9 +133,9 @@ header #sex {
 .treatment-details td { width: 40mm; font-size: 1.2em;}
 .treatment-details .middle-col { text-align: center; vertical-align: middle;}
 .treatment-details .second-row td { border-top: 1px solid black;}
-.treatment-details .duration {}
+.treatment-details .duration { padding-left: 4mm;}
 .treatment-details .condition { }
-.treatment-details .schedule {width: 20mm; text-align: center; vertical-align: middle;}
+.treatment-details .schedule {width: 30mm; text-align: center; vertical-align: middle;}
 
 #notification-area{
     position: fixed;
@@ -167,9 +179,8 @@ header #sex {
 .printing .wrapper {
     box-shadow: none;
     border: none;
-    width: 210mm;
-    padding: 0;
-    height: 297mm;
+    max-height: 260mm;
+    overflow: hidden;
     margin: 0 auto;
 }
 
@@ -185,9 +196,31 @@ body.printing .no-print{
     visibility: hidden;
 }
 
+.printing .header-spacer {
+    height: 34mm;
+}
+.printing header{
+    height: 60mm;
+}
+
 .printing input{
     border: none;
     box-shadow: none;
+}
+
+.printing header #patient-name {
+    margin-left: 20mm;
+}
+
+
+.printing header #patient-age {
+    margin-left: 15mm;
+    margin-right: 15mm;
+}
+
+.printing header #prescription-date {
+    margin-left: 3mm;
+    margin-right: 0;
 }
 
 .printing button.close{
@@ -195,3 +228,4 @@ body.printing .no-print{
 }
 
 .printing .container { border: none;}
+.printing .left-bar { border: none;}
