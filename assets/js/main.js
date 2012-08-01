@@ -260,31 +260,29 @@ var Prescription = {
     },
 
     addNewComplainControlFeature: function(){
-        var timerId;
 
         $('#chief-complains-input').bind('select',function(){
-                var   val = $(this).val()
-                    , hasSubquery = val.indexOf('>') > -1
-                    , mainQuery = hasSubquery ? val.split('>', 2)[0].trim() : val
-                    , subQuery = hasSubquery ? val.split('>', 2)[1].trim() : ''
-                    , rec = DAO.getCheifComplainByName(mainQuery)
+            var   val = $(this).val()
+                , hasSubquery = val.indexOf('>') > -1
+                , mainQuery = hasSubquery ? val.split('>', 2)[0].trim() : val
+                , subQuery = hasSubquery ? val.split('>', 2)[1].trim() : ''
+                , rec = DAO.getCheifComplainByName(mainQuery)
 
-                if(subQuery.indexOf('{num}') > -1) {
-                    $(this).val(mainQuery + ' > ' + subQuery.split('{num}', 2)[0]);
-                } else if(!hasSubquery && rec && rec.comments){
-                    $(this).val(mainQuery + ' > ');
-                    $(this).typeahead('lookup');
-                } else {
-                    //clearTimeout(timerId)
-                    //timerId = setTimeout(function(){
-                        var ccRec = DAO.getCheifComplainByName(mainQuery, true)
-                        if(subQuery) ccRec.comment = DAO.getCommentByText(subQuery);
+            if(!val) return;
 
-                        Prescription.addChiefComplain(ccRec);
-                        $(this).val('');
-                    //}, 200);
+            if(subQuery.indexOf('{num}') > -1) {
+                $(this).val(mainQuery + ' > ' + subQuery.split('{num}', 2)[0]);
+            } else if(!hasSubquery && rec && rec.comments){
+                $(this).val(mainQuery + ' > ');
+                $(this).typeahead('lookup');
+            } else {
+                    var ccRec = DAO.getCheifComplainByName(mainQuery, true)
+                    if(subQuery) ccRec.comment = DAO.getCommentByText(subQuery);
 
-                }
+                    Prescription.addChiefComplain(ccRec);
+                    $(this).val('');
+
+            }
 
         });
 
@@ -312,6 +310,7 @@ var Prescription = {
         });
 
         $('#advised-tests-input').bind('select',function(){
+                if(!$(this).val()) return;
                 var rec = DAO.getTestsByName($(this).val())
                 Prescription.addTest(rec);
                 $(this).val('');
